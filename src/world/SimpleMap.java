@@ -287,6 +287,7 @@ public class SimpleMap {
 
 		o.drawNext = null;
 		o.drawPrevious = null;
+		o.updates = SimpleObject.NO_MOVES_NO_COLLIDES;
 		SimpleSolid s = o.getSolid();
 		if (s != null) {
 			if (map[s.coor_y / cellHeight][s.coor_x / cellWidth] == s) {
@@ -342,8 +343,11 @@ public class SimpleMap {
 	 * @see removeSimpleObject
 	 */
 	public boolean changeZIndex(SimpleObject o, int z) {
+		int updates = o.updates;
 		if (removeSimpleObject(o)) {
+			o.updates = updates;
 			return addSimpleObject(o, o.coor_x, o.coor_y, z);
+			
 		}
 		return false;
 	}

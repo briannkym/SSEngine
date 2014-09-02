@@ -262,6 +262,7 @@ public class Projector implements Runnable {
 		jf.setBackground(Color.BLACK);
 		jf.setAlwaysOnTop(true);
 		jf.setResizable(false);
+		jf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		if (!bIsRunning) {
 			resume();

@@ -51,6 +51,7 @@ public class SimpleMapIO {
 
 	/**
 	 * Create a new IO object with the specified path.
+	 * 
 	 * @param path
 	 */
 	public SimpleMapIO(String path) {
@@ -59,6 +60,7 @@ public class SimpleMapIO {
 
 	/**
 	 * Open a map stream.
+	 * 
 	 * @return True iff the stream was opened successfully.
 	 */
 	public boolean openMap() {
@@ -97,9 +99,41 @@ public class SimpleMapIO {
 	}
 
 	/**
+	 * Write a map to a file.
+	 * 
+	 * This method can save the specific properties of a SimpleObject through
+	 * its getDescription() method which the user can override. This method is
+	 * not optimized for efficiency, and it does not save any global state
+	 * associated with the SimpleWorld such as which SimpleWorldObject should be
+	 * used or which object SimpleWorld should follow with the camera. The user
+	 * should implement their own methods for saving game state. This method is
+	 * best used to load the initial state of the game.
+	 * 
+	 * Note: Introducing limited global state through a singleton can be used to
+	 * set up default settings for a SimpleWorld.
+	 * 
+	 * 
+	 * The format of the saved file will be:
+	 * 
+	 * &lt; int: number of objects &gt;<br>
+	 * &lt; int: map width &gt;<br>
+	 * &lt; int: map height &gt; <br>
+	 * &lt; int: map cellWidth &gt; <br>
+	 * &lt; int: map cellHeight &gt; <br>
+	 * 
+	 * # count = |map_objects| <br>
+	 * for (s in map_objects) do <br>
+	 * &nbsp;&nbsp;&nbsp;&nbsp;&lt; int: s.id &gt;<br>
+	 * &nbsp;&nbsp;&nbsp;&nbsp;&lt; int: s.coor_x &gt;<br>
+	 * &nbsp;&nbsp;&nbsp;&nbsp;&lt; int: s.coor_y &gt;<br>
+	 * &nbsp;&nbsp;&nbsp;&nbsp;&lt; utf_string: s.description &gt; <br>
+	 * done.
 	 * 
 	 * @param m
-	 * @return
+	 *            The map to be saved.
+	 * @return True if the map was saved successfully.
+	 * @see SimpleObject
+	 * @see SimpleMap
 	 */
 	public boolean writeMap(SimpleMap m) {
 		try {
@@ -115,8 +149,8 @@ public class SimpleMapIO {
 				}
 
 				dO.writeInt(count);
-				dO.writeInt(m.map.length);
 				dO.writeInt(m.map[0].length);
+				dO.writeInt(m.map.length);
 				dO.writeInt(m.cellWidth);
 				dO.writeInt(m.cellHeight);
 
@@ -141,7 +175,9 @@ public class SimpleMapIO {
 	}
 
 	/**
-	 * Read a mp from a file.
+	 * Read a mp from a file. Reverses the process defined by
+	 * SimpleMapIO.writeMap.
+	 * 
 	 * @return The SimpleMap represented by the file.
 	 * @see SimpleWorldFactory
 	 */

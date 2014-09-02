@@ -33,12 +33,21 @@ import sprite.Img;
 import sprite.ImgUpload;
 import sprite.NullImg;
 
+/**
+ * A basic square object that holds image, position, and update data 
+ * to draw a dynamic object on the screen. 
+ * 
+ * @author Brian Nakayama
+ * 
+ */
 public abstract class SimpleObject {
 
+	//Linked Lists for drawing and updating.
 	SimpleObject drawNext = null;
 	SimpleObject drawPrevious = null;
 	SimpleObject updateNext = null;
 
+	//Optimization options for limited functionality.
 	public static final int NO_MOVES_NO_COLLIDES = 0, NO_MOVES = 1,
 			NO_COLLIDES = 2, NORMAL = 3;
 	
