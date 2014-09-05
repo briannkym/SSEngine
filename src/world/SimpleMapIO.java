@@ -47,15 +47,16 @@ public class SimpleMapIO {
 	private DataOutputStream dO;
 	private DataInputStream dI;
 	private boolean canPrint = false;
-	private SimpleWorldFactory swf = SimpleWorldFactory.getInstance();
-
+	private SimpleWorldFactory swf;
+	
 	/**
 	 * Create a new IO object with the specified path.
 	 * 
 	 * @param path
 	 */
-	public SimpleMapIO(String path) {
+	public SimpleMapIO(String path, SimpleWorldFactory swf) {
 		this.f = new File(path);
+		this.swf = swf;
 	}
 
 	/**

@@ -287,7 +287,7 @@ public class SimpleMap {
 
 		o.drawNext = null;
 		o.drawPrevious = null;
-		o.updates = SimpleObject.NO_MOVES_NO_COLLIDES;
+		o.updates = SimpleObject.NO_UPDATES_NO_COLLIDES;
 		SimpleSolid s = o.getSolid();
 		if (s != null) {
 			if (map[s.coor_y / cellHeight][s.coor_x / cellWidth] == s) {

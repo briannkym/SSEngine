@@ -19,7 +19,7 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
-*/
+ */
 package sprite;
 
 import java.awt.image.BufferedImage;
@@ -29,56 +29,61 @@ import java.awt.image.BufferedImage;
  * 
  * @author Brian Nakayama
  */
-public class Animation implements Img{
+public class Animation implements Img {
 
-    private BufferedImage[] bI;
-    private int i=0;
-    private ImgListener iL = NullListener.getInstance();
+	private BufferedImage[] bI;
+	private int i = 0;
+	private ImgListener iL = NullListener.getInstance();
 
-    /**
-     * Initializes the animation with an array of bufferedImages.
-     * @param bI
-     */
-    public Animation(BufferedImage[] bI)
-    {
-        this.bI = bI;
-    }
+	/**
+	 * Initializes the animation with an array of bufferedImages.
+	 * 
+	 * @param bI
+	 *            The array of images.
+	 */
+	public Animation(BufferedImage[] bI) {
+		this.bI = bI;
+	}
 
-    /**
-     * Returns an image and increments the index of the array.
-     */
-    public BufferedImage getSlide()
-    {
-        BufferedImage rB=bI[i];
+	/**
+	 * Returns a new animation that uses the same array of images.
+	 * 
+	 * @return A new animation.
+	 */
+	public Animation getClone() {
+		return new Animation(bI);
+	}
 
-        if(i<bI.length-1)
-        {
-            i++;
-        }
-        else
-        {
-            iL.slideEnd();
-            i=0;
-        }
-        
-        return rB;
-    }
+	/**
+	 * Returns an image and increments the index of the array.
+	 */
+	public BufferedImage getSlide() {
+		BufferedImage rB = bI[i];
 
-    /**
-     * Set the index to be displayed.
-     */
-    public void setSlide(int i)
-    {
-        this.i = i;
-    }
+		if (i < bI.length - 1) {
+			i++;
+		} else {
+			iL.slideEnd();
+			i = 0;
+		}
 
-    /**
-     * Set an Image Listener.
-     * @see ImgListener
-     */
-    public void setListener(ImgListener iL)
-    {
-        this.iL=iL;
-    }
+		return rB;
+	}
+
+	/**
+	 * Set the index to be displayed.
+	 */
+	public void setSlide(int i) {
+		this.i = i;
+	}
+
+	/**
+	 * Set an Image Listener.
+	 * 
+	 * @see ImgListener
+	 */
+	public void setListener(ImgListener iL) {
+		this.iL = iL;
+	}
 
 }

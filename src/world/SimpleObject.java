@@ -19,7 +19,7 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
-*/
+ */
 package world;
 
 import java.awt.Graphics2D;
@@ -34,65 +34,228 @@ import sprite.ImgUpload;
 import sprite.NullImg;
 
 /**
- * A basic square object that holds image, position, and update data 
- * to draw a dynamic object on the screen. 
+ * A basic square object that holds image, position, and update data to draw a
+ * dynamic object on the screen.
  * 
  * @author Brian Nakayama
  * 
  */
 public abstract class SimpleObject {
 
-	//Linked Lists for drawing and updating.
+	// Linked Lists for drawing and updating.
 	SimpleObject drawNext = null;
 	SimpleObject drawPrevious = null;
 	SimpleObject updateNext = null;
 
-	//Optimization options for limited functionality.
-	public static final int NO_MOVES_NO_COLLIDES = 0, NO_MOVES = 1,
+	// Optimization options for limited functionality.
+	public static final int NO_UPDATES_NO_COLLIDES = 0, NO_UPDATES = 1,
 			NO_COLLIDES = 2, NORMAL = 3;
-	
+
+	// By default use the null image.
 	private Img i = NullImg.getInstance();
+
+	// By default update and check for collisions.
 	int updates = NORMAL;
+
+	// The current coordinates and previous coordinates of the object.
 	int coor_x, coor_y, pre_cx, pre_cy;
-	
+
+	// Have a copy of the map for methods manipulating objects.
 	SimpleMap m;
 
+	// The offset for drawing the image.
 	protected final int[] off = { 0, 0 };
 
+	/**
+	 * Override with behavior for collisions. SimpleObjects can only collide
+	 * with SimpleSolids, and will overlap when colliding. SimpleSolids can
+	 * collide with everything, but cannot overlap with other SimpleSolids. If a
+	 * collision occurs, this method will be called for both objects.
+	 * 
+	 * @param s
+	 *            The object for which the collision has occurred.
+	 * @see SimpleSolid
+	 */
 	abstract public void collision(SimpleObject s);
 
+	/**
+	 * If the object is set to receive updates each frame, this method will be
+	 * called before the object is rendered by SimpleWorld.
+	 * 
+	 * @see SimpleWorld
+	 */
 	abstract public void update();
 
+	/**
+	 * Override with the id of the object. This method is necessary for
+	 * SimpleWorldFactory, but it is also useful for determining what to do upon
+	 * a collision.
+	 * 
+	 * @return The id of the object.
+	 * 
+	 * @see SimpleWorldFactory
+	 */
 	abstract public int id();
-	
-	public SimpleObject getClone(String s){
+
+	/**
+	 * Override this method if the child object cannot be created with the
+	 * default constructor.
+	 * 
+	 * The string can be passed in as a parameter to customize the object
+	 * creation.
+	 * 
+	 * @param s
+	 *            A string containing information as to how to customize the
+	 *            object.
+	 * @return The object customized by the String s.
+	 */
+	public SimpleObject getClone(String s) {
 		return null;
 	}
-	
-	public String getDescription(){
+
+	/**
+	 * Override this method for objects that need additional information for
+	 * their construction. This method will be called for extra information when
+	 * saving objects.
+	 * 
+	 * @return A String containing additional information about the object.
+	 * @see SimpleMapIO
+	 */
+	public String getDescription() {
 		return "";
 	}
 
+	/**
+	 * Default constructor. Checks for collisions and passes updates.
+	 */
 	public SimpleObject() {
 		this(NORMAL);
 	}
 
+	/**
+	 * Create a SimpleObject optimized to ignore certain methods. By default the
+	 * object is NORMAL. If the object doesn't need to update its state before
+	 * rendering, use NO_UPDATES. If the object doesn't need to collide use
+	 * NO_COLLIDES.
+	 * 
+	 * @param optimization
+	 *            NO_UPDATES_NO_COLLIDES, NO_UPDATES, NO_COLLIDES, or NORMAL
+	 */
 	public SimpleObject(int optimization) {
 		this.updates = optimization;
 	}
 
+	/**
+	 * Create a SimpleObject with a sprite. Note, this is not the efficient way
+	 * to create an object with a sprite. If the same sprite belongs to all
+	 * objects of a class it should be loaded statically. If the same Animation
+	 * belongs to all objects of a class similarly it should be loaded
+	 * statically and then copied using its getClone method. The following is
+	 * preferable:
+	 * 
+	 * <pre>
+	 * <code>
+	 *  public class yourClass extends SimpleObject
+	 *  {
+	 *  	static Animation runS = (Animation) ImgUpload.getInstance(f.getParentFile()).getImg(f.getName());
+	 *  	static Animation walkS = (Animation) ImgUpload.getInstance(f.getParentFile()).getImg(f.getName());
+	 *  	static Img stand = ImgUpload.getInstance(f.getParentFile()).getImg(f.getName());
+	 *  	private Img run = runS.getClone();
+	 *  	private Img walk = walkS.getClone();
+	 *  
+	 *  	public yourClass(){
+	 *  		this.setImage(stand);
+	 *  	}
+	 *  
+	 *  	... Overridden methods here...
+	 *  }
+	 * </code>
+	 * </pre>
+	 * 
+	 * This method exists purely for convenience.
+	 * 
+	 * 
+	 * @param sprite
+	 *            The address of the image.
+	 * 
+	 */
 	public SimpleObject(String sprite) {
 		this(sprite, NORMAL);
 	}
 
+	/**
+	 * Create a SimpleObject optimized to ignore certain methods with a sprite.
+	 * By default the object is NORMAL. If the object doesn't need to update its
+	 * state before rendering, use NO_UPDATES. If the object doesn't need to
+	 * collide use NO_COLLIDES. Note, this is not the efficient way to create an
+	 * object with a sprite. If the same sprite belongs to all objects of a
+	 * class it should be loaded statically. If the same Animation belongs to
+	 * all objects of a class similarly it should be loaded statically and then
+	 * copied using its getClone method. The following is preferable:
+	 * 
+	 * <pre>
+	 * <code>
+	 *  public class yourClass extends SimpleObject
+	 *  {
+	 *  	File f = ..., g = ..., h = ...;
+	 *  	static Animation runS = (Animation) ImgUpload.getInstance(f.getParentFile()).getImg(f.getName());
+	 *  	static Animation walkS = (Animation) ImgUpload.getInstance(g.getParentFile()).getImg(g.getName());
+	 *  	static Img stand = ImgUpload.getInstance(h.getParentFile()).getImg(h.getName());
+	 *  	private Img run = runS.getClone();
+	 *  	private Img walk = walkS.getClone();
+	 *  
+	 *  	public yourClass(){
+	 *  		this.setImage(stand);
+	 *  	}
+	 *  
+	 *  	... Overridden methods here...
+	 *  }
+	 * </code>
+	 * </pre>
+	 * 
+	 * This method exists purely for convenience.
+	 * 
+	 * @param sprite
+	 *            The address of the image.
+	 * @param optimization
+	 *            NO_UPDATES_NO_COLLIDES, NO_UPDATES, NO_COLLIDES, or NORMAL
+	 */
 	public SimpleObject(String sprite, int optimization) {
 		this(optimization);
 		File f = new File(sprite);
 		this.i = ImgUpload.getInstance(f.getParentFile()).getImg(f.getName());
 	}
-	
-	public boolean cancelMove(){
-		if(coor_x!=pre_cx || coor_y!=pre_cy){
+
+	/**
+	 * Cancel the objects movement.
+	 * 
+	 * This can be used after calling move to undo the move. The following code
+	 * demonstrates how it can be used to make a collision with a SimpleSolid
+	 * and a SimpleObject seem like a SimpleSolid-SimpleSolid collision:
+	 * 
+	 * <pre>
+	 * <code>
+	 * 	public class yourClass extends SimpleObject
+	 * 	{
+	 * 
+	 * 		public void collision(SimpleObject s){
+	 * 			switch(s.getID()){ //s must also be a SimpleSolid
+	 * 				case 0:
+	 * 				//Assuming s was not moving, move back to the place before the collision occurred.
+	 * 				cancelMove();
+	 * 			 	break;
+	 * 			}
+	 * 		}
+	 * 		
+	 * 		... Other methods ...
+	 * 	}
+	 * </code>
+	 * </pre>
+	 * 
+	 * @return
+	 */
+	public boolean cancelMove() {
+		if (coor_x != pre_cx || coor_y != pre_cy) {
 			coor_x = pre_cx;
 			coor_y = pre_cy;
 			return true;
@@ -101,6 +264,22 @@ public abstract class SimpleObject {
 		}
 	}
 
+	/**
+	 * Move to a pixel coordinate (x,y) or move relatively from the current
+	 * coordinate (coor_x + x, coor_y + y). When requesting to move further than
+	 * the boundary of the map, this method will attempt to move the object as
+	 * much as possible within the boundary.
+	 * 
+	 * @param x
+	 *            New x -coordinate.
+	 * @param y
+	 *            New y-coordinate.
+	 * @param relative
+	 *            True if the object should move relative to its coordinates:
+	 *            (coor_x + x, coor_y + y).
+	 * @return True if movement (not necessarily the movement asked for)
+	 *         happens.
+	 */
 	public boolean move(int x, int y, boolean relative) {
 		boolean movement = false;
 		if (relative) {
@@ -108,10 +287,10 @@ public abstract class SimpleObject {
 			y += coor_y;
 		}
 		pre_cy = coor_y;
-		pre_cx = coor_x;		
+		pre_cx = coor_x;
 
-		if(x > 0){
-			if( x < m.mapWmax) {
+		if (x > 0) {
+			if (x < m.mapWmax) {
 				coor_x = x;
 				movement = true;
 			} else {
@@ -120,9 +299,9 @@ public abstract class SimpleObject {
 		} else {
 			coor_x = 0;
 		}
-		
-		if(y > 0){
-			if( y < m.mapHmax) {
+
+		if (y > 0) {
+			if (y < m.mapHmax) {
 				coor_y = y;
 				movement = true;
 			} else {
@@ -134,12 +313,17 @@ public abstract class SimpleObject {
 		return movement;
 	}
 
+	/*
+	 * Used by SimpleWorld to ask for updates. This method first checks whether
+	 * the object is optimized before checking for collisions, and then
+	 * updating.
+	 */
 	void newUpdate() {
 		switch (updates) {
 		case NORMAL:
-			for (SimpleSolid S : m.getCollisions(coor_x, coor_y)){
+			for (SimpleSolid S : m.getCollisions(coor_x, coor_y)) {
 				if (S != null) {
-					if(S != this){
+					if (S != this) {
 						S.collision(this);
 						collision(S);
 					}
@@ -150,61 +334,155 @@ public abstract class SimpleObject {
 		case NO_COLLIDES:
 			this.update();
 		default:
-			//Do nothing on move.
+			// Do nothing on move.
 			break;
 		}
 	}
 
+	/**
+	 * Change the offset at which the image is drawn from the top left corner
+	 * (position) of the object.
+	 * 
+	 * @param off_x
+	 *            The x offset.
+	 * @param off_y
+	 *            The y offset.
+	 */
 	public void setOffset(int off_x, int off_y) {
 		this.off[0] = off_x;
 		this.off[1] = off_y;
 	}
 
+	/**
+	 * Get the array holding the offset of the image.
+	 * 
+	 * @return The offset: (off_x, off_y).
+	 */
 	public int[] getOffset() {
 		return off;
 	}
-	
-	public int getX(){
+
+	/**
+	 * Get the x coordinate of this object from the left of the screen.
+	 * 
+	 * @return The x coordinate (in pixels).
+	 */
+	public int getX() {
 		return coor_x;
 	}
-	
-	public int getY(){
+
+	/**
+	 * Get the y coordinate of this object from the top of the screen.
+	 * 
+	 * @return The y coordinate (in pixels).
+	 */
+	public int getY() {
 		return coor_y;
 	}
 
+	/*
+	 * Used by the engine to draw the image onto the screen. Users should not
+	 * have to use/change/worry about this method.
+	 */
 	void paintImage(Graphics2D g, int[] camera) {
-		g.drawImage(i.getSlide(), coor_x + off[0] - camera[0], coor_y + off[1] - camera[1], null);
+		g.drawImage(i.getSlide(), coor_x + off[0] - camera[0], coor_y + off[1]
+				- camera[1], null);
 		updateNext = drawNext;
 	}
 
+	/**
+	 * Sets the Image to be drawn to the screen. Not the efficient way to do
+	 * this. See the constructor for {@link #SimpleObject(String) SimpleObject}
+	 * for more information.
+	 * 
+	 * @param sprite
+	 *            The address of the new image to draw.
+	 */
 	public void setImage(String sprite) {
 		File f = new File(sprite);
 		this.i = ImgUpload.getInstance(f.getParentFile()).getImg(f.getName());
 	}
 
-	public void setImage(int rgba, int width, int height) {
-		this.i = new ColorImg(rgba, width, height);
+	/**
+	 * Sets a color image to be drawn to the screen. If many objects are using
+	 * the same ColorImg, then the image should be created statically.
+	 * 
+	 * @param argb
+	 *            The 32 bit color defined by 0xAARRGGBB.
+	 * @param width
+	 *            The width of the image.
+	 * @param height
+	 *            The height of the image.
+	 */
+	public void setImage(int argb, int width, int height) {
+		this.i = new ColorImg(argb, width, height);
 	}
 
+	/**
+	 * Set the image to be rendered.
+	 * 
+	 * @param i
+	 *            The image object to be rendered.
+	 */
 	public void setImage(Img i) {
 		this.i = i;
 	}
 
+	/**
+	 * Get the image currently being used by the SimpleObject.
+	 * 
+	 * @return The current image.
+	 */
 	public Img getImage() {
 		return i;
 	}
 
+	/**
+	 * Play a sound. If a sound is played more than once, the sound object
+	 * should by loaded statically, and then played:
+	 * 
+	 * <pre>
+	 * <code>
+	 *  public class yourClass extends SimpleObject
+	 *  {
+	 *  	File f = ...;
+	 *  	static Sound beep = SoundUpload.getInstance(f.getParentFile()).getSound(f.getName());
+	 *  	
+	 *  	... Overridden methods here...
+	 *  	
+	 *  	public void foo(){
+	 *  		playSound(beep);
+	 *  	}
+	 *  }
+	 * </code>
+	 * </pre>
+	 * 
+	 * @param sound
+	 *            The address of the sounds to be played.
+	 */
 	public void playSound(String sound) {
 		File f = new File(sound);
 		Sound s = SoundUpload.getInstance(f.getParentFile()).getSound(
 				f.getName());
 		TrackPlayer.getPlayer().play(s);
 	}
-	
+
+	/**
+	 * Play a sound. For information on how to play a sound statically:
+	 * {@link #playSound(String) playSound}.
+	 * 
+	 * @param sound
+	 *            The sound object to be played.
+	 */
 	public void playSound(Sound sound) {
 		TrackPlayer.getPlayer().play(sound);
 	}
 
+	/**
+	 * If this object is a solid, return itself. Else return null.
+	 * 
+	 * @return null iff this object is not Solid.
+	 */
 	public SimpleSolid getSolid() {
 		return null;
 	}

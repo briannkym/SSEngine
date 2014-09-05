@@ -29,7 +29,7 @@ public abstract class SimpleSolid extends SimpleObject {
 	}
 
 	public SimpleSolid(boolean NO_MOVES) {
-		super(NO_MOVES_NO_COLLIDES);
+		super(NO_UPDATES_NO_COLLIDES);
 		if (!NO_MOVES) {
 			this.updates = NO_COLLIDES;
 		}
@@ -40,7 +40,7 @@ public abstract class SimpleSolid extends SimpleObject {
 	}
 
 	public SimpleSolid(String sprite, boolean NO_MOVES) {
-		super(sprite, NO_MOVES_NO_COLLIDES);
+		super(sprite, NO_UPDATES_NO_COLLIDES);
 		if (!NO_MOVES) {
 			this.updates = NO_COLLIDES;
 		}
