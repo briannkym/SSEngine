@@ -125,7 +125,7 @@ public class TrackPlayer {
 	/**
 	 * Play a WAV once.
 	 * 
-	 * @param mi
+	 * @param wav
 	 *            The WAV object
 	 */
 	public void play(WAV wav) {

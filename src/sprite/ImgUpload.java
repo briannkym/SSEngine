@@ -45,7 +45,7 @@ import javax.imageio.ImageIO;
  * @author Brian Nakayama
  * @version 1.1 Bug fix with animations.
  * @since 1.0 First working version.
- * @see SimpleObject
+ * @see world.SimpleObject
  */
 
 public class ImgUpload {

@@ -21,6 +21,6 @@ public class testMain {
 		}
 		SimpleWorld w = new SimpleWorld(m, 800, 600, "Testing");
 		w.setCameraStalk(cam);
-		w.start(false);
+		w.start(true);
 	}
 }

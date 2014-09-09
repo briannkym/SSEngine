@@ -252,7 +252,7 @@ public abstract class SimpleObject {
 	 * </code>
 	 * </pre>
 	 * 
-	 * @return
+	 * @return True iff the move was undone.
 	 */
 	public boolean cancelMove() {
 		if (coor_x != pre_cx || coor_y != pre_cy) {

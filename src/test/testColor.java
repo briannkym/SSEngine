@@ -21,7 +21,7 @@ public class testColor extends SimpleObject{
 
 	@Override
 	public void update() {
-		this.move(direction[move][0], direction[move][1], true);	
+		this.move(direction[move][0], direction[move][1], true);
 	}
 
 	@Override

@@ -46,7 +46,7 @@ import javax.sound.sampled.Clip;
  * 
  * @author Brian Nakayama
  * @version 1.0 Works for MIDI and WAV files.
- * @see SimpleObject
+ * @see world.SimpleObject
  */
 public class SoundUpload {
 

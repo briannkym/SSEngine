@@ -309,7 +309,7 @@ public class SimpleMap {
 	 *            The y cell of the map
 	 * @return True iff the object was in the map, and is now successfully
 	 *         removed.
-	 * @see RemoveSimpleObject
+	 * @see #removeSimpleObject(SimpleObject)
 	 */
 	public boolean removeSimpleSolid(int x, int y) {
 		if (map[y][x] != null) {
@@ -340,7 +340,7 @@ public class SimpleMap {
 	 * @param z
 	 * @return False iff the object is not in the map or the object cannot be
 	 *         re-added (in which case it is just removed).
-	 * @see removeSimpleObject
+	 * @see #removeSimpleObject(SimpleObject)
 	 */
 	public boolean changeZIndex(SimpleObject o, int z) {
 		int updates = o.updates;

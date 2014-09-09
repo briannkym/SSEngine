@@ -38,8 +38,19 @@ import sprite.ImgUpload;
 import view.Pinterface;
 import view.Projector;
 
+/**
+ * Holds the camera and interfaces with the projector which controls the frame
+ * rate. Also holds logic for starting the game along with rendering the frame.
+ * 
+ * @author Brian Nakayama
+ */
 public class SimpleWorld extends JFrame implements Pinterface {
 
+	/*
+	 * Though this object is serializable, it is not intended or recommended to
+	 * use this feature.
+	 */
+	private static final long serialVersionUID = 1L;
 	private Img background;
 	private Projector ip;
 	private String title;
@@ -51,6 +62,19 @@ public class SimpleWorld extends JFrame implements Pinterface {
 	private SimpleWorldObject swo = NullSimpleWorldObject.getInstance();
 	private boolean update = true;
 
+	/**
+	 * Create a SimpleWorld with the desired width and height.
+	 * 
+	 * @param m
+	 *            The map to be rendered and updated. Switch the map to switch
+	 *            "environments" or "rooms".
+	 * @param width
+	 *            The desired width in pixels.
+	 * @param height
+	 *            The desired height in pixels.
+	 * @param title
+	 *            The title of the application.
+	 */
 	public SimpleWorld(SimpleMap m, int width, int height, String title) {
 		this.m = m;
 		this.width = width;
@@ -61,11 +85,20 @@ public class SimpleWorld extends JFrame implements Pinterface {
 		this.ip = new Projector(20.0f, bi, title, this);
 	}
 
+	/**
+	 * Starts the loop that runs the game and updates the objects. Essentially
+	 * starts the game.
+	 * 
+	 * @param fullscreen
+	 *            True for fullscreen, false for windowed screen. The windowed
+	 *            screen will be the size defined in the constructor in pixels.
+	 */
 	public void start(boolean fullscreen) {
 		if (fullscreen) {
 			ip.init(this);
 		} else {
-			//TODO Update this code to get the dimensions of the buffered Image.
+			// TODO Update this code to get the dimensions of the buffered
+			// Image.
 			Container c = this.getContentPane();
 			JPanel jp = ip.init(width, height);
 			c.setLayout(new BorderLayout());
@@ -79,64 +112,156 @@ public class SimpleWorld extends JFrame implements Pinterface {
 		}
 	}
 
+	/**
+	 * Set the current map held and rendered by the world.
+	 * 
+	 * @param m
+	 *            The current map.
+	 */
 	public void setSimpleSolidMap(SimpleMap m) {
 		this.m = m;
 	}
 
+	/**
+	 * Get the current map held and rendered by the world.
+	 * 
+	 * @return The current map.
+	 */
 	public SimpleMap getSimpleSolidMap() {
 		return m;
 	}
 
+	/**
+	 * Set the world object which can draw and render over the rest of the
+	 * screen.
+	 * 
+	 * @param swo
+	 *            The SimpleWorldObject for this world.
+	 * @see SimpleWorldObject
+	 */
 	public void setSimpleWorldObject(SimpleWorldObject swo) {
 		this.swo = swo;
 	}
 
+	/**
+	 * Get the world object.
+	 * 
+	 * @return The SimpleWorldObject for this world.
+	 * @see SimpleWorldObject
+	 */
 	public SimpleWorldObject getSimpleWorldObject() {
 		return swo;
 	}
-	
-	public void setCameraStalk(SimpleObject cameraStalk){
+
+	/**
+	 * Set an object for the camera to follow (stalk).
+	 * 
+	 * Notice that the camera will only have an effect if the screen is smaller
+	 * than the size of the world.
+	 * 
+	 * @param cameraStalk
+	 *            The object to follow.
+	 */
+	public void setCameraStalk(SimpleObject cameraStalk) {
 		this.cameraStalk = cameraStalk;
 	}
 
+	/**
+	 * Set the background image to be tiled. Not the suggested way to load the
+	 * background. It should be statically loaded. Then use
+	 * {@link #setBGImage(Img)}.
+	 * 
+	 * @param sprite
+	 *            The path to the backgroun image to be tiled.
+	 */
 	public void setBGImage(String sprite) {
 		File f = new File(sprite);
 		this.background = ImgUpload.getInstance(f.getParentFile()).getImg(
 				f.getName());
 	}
 
+	/**
+	 * Set the background image to be tiled. This method sets a colorImage to be
+	 * tiled.
+	 * 
+	 * @param rgba
+	 *            The 32 bit color for the background.
+	 * @param width
+	 *            The width in pixels of the image.
+	 * @param height
+	 *            The height in pixels of the image.
+	 * @see ColorImg
+	 */
 	public void setBGImage(int rgba, int width, int height) {
 		this.background = new ColorImg(rgba, width, height);
 	}
 
+	/**
+	 * Set the background image to be tiled. This method sets an arbitrary image
+	 * to be tiled. This will work strangely with animations.
+	 * 
+	 * @param i
+	 *            The image to be tiled.
+	 */
 	public void setBGImage(Img i) {
 		this.background = i;
 	}
 
+	/**
+	 * Set the x and y coordinate of the camera for the top left of the screen.
+	 * 
+	 * @param x
+	 *            The new x coordinate.
+	 * @param y
+	 *            The new y coordinate.
+	 */
 	public void setCamera(int x, int y) {
 		camera[0] = x;
 		camera[1] = y;
 	}
 
+	/**
+	 * Get the array that holds the x and y coordinate of the camera.
+	 * 
+	 * @return a 2d array with the x and y coordinate of the camera.
+	 */
 	public int[] getCamera() {
 		return camera;
 	}
 
+	/**
+	 * Get the projector created by the SimpleWorld.
+	 * 
+	 * The Projector holds more methods for starting and stopping the animation
+	 * thread. For example you may want to change the FPS, or render more than
+	 * one copy of the screen.
+	 * 
+	 * @return The projector
+	 */
 	public Projector getProjector() {
 		return ip;
 	}
 
+	/**
+	 * Inherited method, not for intended for direct use.
+	 * 
+	 * This method updates the camera, all the objects, then paints them all.
+	 * 
+	 * @see view.Pinterface#iUpdate(java.awt.image.BufferedImage)
+	 */
 	@Override
 	public void iUpdate(BufferedImage ISlide) {
 
-		//Update camera coordinates based off of the width and height.
-		if (cameraStalk!=null){
-			int camx = cameraStalk.coor_x - (width - m.cellWidth)/2;
-			int camy = cameraStalk.coor_y - (height - m.cellHeight)/2;
-			camera[0] = (camx >= 0 && camx <= m.mapWmax - width) ? camx : camera[0];
-			camera[1] = (camy >= 0 && camy <= m.mapHmax - height) ? camy : camera[1];
+		// Update camera coordinates based off of the width and height.
+		if (cameraStalk != null) {
+			int camx = cameraStalk.coor_x - (width - m.cellWidth) / 2;
+			int camy = cameraStalk.coor_y - (height - m.cellHeight) / 2;
+			camera[0] = (camx >= 0 && camx <= m.mapWmax - width) ? camx
+					: camera[0];
+			camera[1] = (camy >= 0 && camy <= m.mapHmax - height) ? camy
+					: camera[1];
 		}
-		
+
 		Graphics2D g = ISlide.createGraphics();
 		g.setColor(new Color(0xFFFFFFFF));
 		g.fillRect(0, 0, ISlide.getWidth(), ISlide.getHeight());
@@ -153,8 +278,8 @@ public class SimpleWorld extends JFrame implements Pinterface {
 				}
 			}
 		}
-		
-		//Update all objects.
+
+		// Update all objects.
 		if (update) {
 			for (SimpleObject s : m.zArray) {
 				if (s != null) {
@@ -165,7 +290,7 @@ public class SimpleWorld extends JFrame implements Pinterface {
 			}
 		}
 
-		//Paint all objects.
+		// Paint all objects.
 		for (SimpleObject s : m.zArray) {
 			if (s != null) {
 				for (; s != null; s = s.drawNext) {
@@ -174,7 +299,7 @@ public class SimpleWorld extends JFrame implements Pinterface {
 			}
 		}
 
-		//Paint the world object over the projection.
+		// Paint the world object over the projection.
 		swo.updateScreen(ISlide, g);
 		g.dispose();
 	}

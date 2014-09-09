@@ -172,7 +172,7 @@ public class Projector implements Runnable {
 
 	/**
 	 * Attempts to initiate a Full Screen Exclusive Mode(FSEM) Projection.
-	 *  
+	 * 
 	 * Pass in the frame that will be fit to the screen. If FSEM is not
 	 * available, then this will initiate a Full Screen Mode (FSM) that
 	 * stretches the screen to fir using software.
@@ -276,8 +276,10 @@ public class Projector implements Runnable {
 	/**
 	 * Initiates a projection on a JPanel of a certain size.
 	 * 
-	 * @param d
-	 *            The size of the JPanel.
+	 * @param width
+	 *            The width of the panel.
+	 * @param height
+	 *            The height of the panel.
 	 * @return Returns the JPanel that will receive the Projections.
 	 */
 	public JPanel init(int width, int height) {
