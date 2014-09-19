@@ -51,7 +51,7 @@ import javax.imageio.ImageIO;
 public class ImgUpload {
 	private File f;
 	private static List<ImgUpload> iuList = new LinkedList<ImgUpload>();
-	private Map<String, Img> img = new HashMap<String, Img>();
+	private Map<String, Img<BufferedImage>> img = new HashMap<String, Img<BufferedImage>>();
 
 	private FileFilter fs = new FileFilter() {
 
@@ -164,8 +164,8 @@ public class ImgUpload {
 	 * @param fileName The file name, not including any directories or the full path.
 	 * @return The image if it exists.
 	 */
-	public Img getImg(String fileName) {
-		Img i = img.get(fileName);
+	public Img<BufferedImage> getImg(String fileName) {
+		Img<BufferedImage> i = img.get(fileName);
 		if (i == null) {
 			return NullImg.getInstance();
 		}

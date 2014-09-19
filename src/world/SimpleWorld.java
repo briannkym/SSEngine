@@ -51,7 +51,7 @@ public class SimpleWorld extends JFrame implements Pinterface {
 	 * use this feature.
 	 */
 	private static final long serialVersionUID = 1L;
-	private Img background;
+	private Img<BufferedImage> background;
 	private Projector ip;
 	private String title;
 	private final int[] camera = { 0, 0 };
@@ -172,7 +172,7 @@ public class SimpleWorld extends JFrame implements Pinterface {
 	 * {@link #setBGImage(Img)}.
 	 * 
 	 * @param sprite
-	 *            The path to the backgroun image to be tiled.
+	 *            The path to the background image to be tiled.
 	 */
 	public void setBGImage(String sprite) {
 		File f = new File(sprite);
@@ -203,7 +203,7 @@ public class SimpleWorld extends JFrame implements Pinterface {
 	 * @param i
 	 *            The image to be tiled.
 	 */
-	public void setBGImage(Img i) {
+	public void setBGImage(Img<BufferedImage> i) {
 		this.background = i;
 	}
 

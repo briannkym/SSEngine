@@ -8,7 +8,7 @@ public class testMain {
 		SimpleMap m = new SimpleMap(160, 120, 20, 20);
 		testObject cam = new testObject();
 		m.addSimpleObject(cam, 790, 590);
-		for(int x = 0; x < 160; x ++){
+		/*for(int x = 0; x < 160; x ++){
 			for(int y = 0; y < 120; y ++){
 				double d = Math.random();
 				if(d<0.4){
@@ -18,9 +18,10 @@ public class testMain {
 					m.addSimpleObject(new testColor(), x*20, y*20, z);
 				}
 			}
-		}
+		}*/
 		SimpleWorld w = new SimpleWorld(m, 800, 600, "Testing");
-		w.setCameraStalk(cam);
-		w.start(true);
+		m.removeSimpleObject(cam);
+		//w.setCameraStalk(cam);
+		w.start(false);
 	}
 }

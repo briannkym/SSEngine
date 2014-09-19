@@ -22,6 +22,7 @@ THE SOFTWARE.
  */
 package world;
 
+import java.awt.image.BufferedImage;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -69,7 +70,7 @@ public class SimpleWorldFactory {
 	 *            The key.
 	 * @return The image.
 	 */
-	public Img previewKey(int c) {
+	public Img<BufferedImage> previewKey(int c) {
 		return objects.get(c).getImage();
 	}
 

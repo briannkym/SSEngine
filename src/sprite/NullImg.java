@@ -32,7 +32,7 @@ import java.awt.image.BufferedImage;
  * checking whether an object has an image or not.
  * @author Brian Nakayama
  */
-public class NullImg implements Img{
+public class NullImg implements Img<BufferedImage>{
 
     private static NullImg n = new NullImg();
     

@@ -24,6 +24,7 @@ package world;
 
 import java.awt.Graphics2D;
 import java.io.File;
+import java.awt.image.BufferedImage;
 
 import sound.Sound;
 import sound.SoundUpload;
@@ -52,7 +53,7 @@ public abstract class SimpleObject {
 			NO_COLLIDES = 2, NORMAL = 3;
 
 	// By default use the null image.
-	private Img i = NullImg.getInstance();
+	private Img<BufferedImage> i = NullImg.getInstance();
 
 	// By default update and check for collisions.
 	int updates = NORMAL;
@@ -424,7 +425,7 @@ public abstract class SimpleObject {
 	 * @param i
 	 *            The image object to be rendered.
 	 */
-	public void setImage(Img i) {
+	public void setImage(Img<BufferedImage> i) {
 		this.i = i;
 	}
 
@@ -433,7 +434,7 @@ public abstract class SimpleObject {
 	 * 
 	 * @return The current image.
 	 */
-	public Img getImage() {
+	public Img<BufferedImage> getImage() {
 		return i;
 	}
 

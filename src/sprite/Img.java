@@ -22,19 +22,17 @@ THE SOFTWARE.
 */
 package sprite;
 
-import java.awt.image.BufferedImage;
-
 /**
  *
  * @author Brian Nakayama
  * @version 1.0
  */
-public interface Img
+public interface Img<T>
 {
 	/**
 	 * Returns the current slide of the image.
 	 */
-    public BufferedImage getSlide();
+    public T getSlide();
 	
     /**
 	 * Sets the internal index of the image.

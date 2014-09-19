@@ -206,7 +206,6 @@ public class SimpleMap {
 		return s;
 	}
 
-
 	/**
 	 * Locates all of the possible collisions for an object of cellWidth and
 	 * cellHeight colliding at a position x, y. Note, this will return a
@@ -230,9 +229,9 @@ public class SimpleMap {
 	public SimpleSolid[] getCollisions(int x, int y) {
 		int grid_x = x / cellWidth;
 		int grid_y = y / cellHeight;
-		
+
 		SimpleSolid[] collisions = new SimpleSolid[4];
-		
+
 		int index = 0;
 		for (int y0 = Math.max(grid_y - 1, 0); y0 <= Math.min(grid_y + 1,
 				map.length - 1); y0++) {
@@ -269,8 +268,12 @@ public class SimpleMap {
 			// Check the heads of the lists.
 			for (int i = 0; i < zArray.length; i++) {
 				if (zArray[i] == o) {
-					zArray[i] = o.drawNext;
-					o.drawNext.drawPrevious = null;
+					// Check if the element to remove is the only element in the
+					// list.
+					if (o.drawNext != null) {
+						zArray[i] = o.drawNext;
+						o.drawNext.drawPrevious = null;
+					}
 					removed = true;
 				}
 			}
@@ -313,7 +316,7 @@ public class SimpleMap {
 	 */
 	public boolean removeSimpleSolid(int x, int y) {
 		if (map[y][x] != null) {
-			return removeSimpleObject(map[x][y]);
+			return removeSimpleObject(map[y][x]);
 		}
 		return false;
 	}
@@ -347,7 +350,7 @@ public class SimpleMap {
 		if (removeSimpleObject(o)) {
 			o.updates = updates;
 			return addSimpleObject(o, o.coor_x, o.coor_y, z);
-			
+
 		}
 		return false;
 	}

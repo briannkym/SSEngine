@@ -29,7 +29,7 @@ import java.awt.image.BufferedImage;
  * 
  * @author Brian Nakayama
  */
-public class Animation implements Img {
+public class Animation implements Img<BufferedImage> {
 
 	private BufferedImage[] bI;
 	private int i = 0;

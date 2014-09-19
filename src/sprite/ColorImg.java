@@ -29,7 +29,7 @@ import java.awt.image.BufferedImage;
  * 
  * @author Brian
  */
-public class ColorImg implements Img {
+public class ColorImg implements Img<BufferedImage> {
 
 	private BufferedImage bI;
 

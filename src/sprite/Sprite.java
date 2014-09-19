@@ -28,7 +28,7 @@ import java.awt.image.BufferedImage;
  * The basic image. Holds a buffered image.
  * @author Brian Nakayama
  */
-public class Sprite implements Img{
+public class Sprite implements Img<BufferedImage>{
 
     private BufferedImage bI;
 
