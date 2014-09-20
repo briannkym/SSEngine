@@ -254,12 +254,25 @@ public class SimpleWorld extends JFrame implements Pinterface {
 
 		// Update camera coordinates based off of the width and height.
 		if (cameraStalk != null) {
-			int camx = cameraStalk.coor_x - (width - m.cellWidth) / 2;
-			int camy = cameraStalk.coor_y - (height - m.cellHeight) / 2;
-			camera[0] = (camx >= 0 && camx <= m.mapWmax - width) ? camx
-					: camera[0];
-			camera[1] = (camy >= 0 && camy <= m.mapHmax - height) ? camy
-					: camera[1];
+			camera[0] = cameraStalk.coor_x - (width - m.cellWidth) / 2;
+			camera[1] = cameraStalk.coor_y - (height - m.cellHeight) / 2;
+			if (camera[0] < 0){
+				camera[0] = 0;
+			} else {
+				int x;
+				if (camera[0] > (x = m.mapWmax - width + m.cellWidth)){
+					camera[0] = x;
+				}
+			}
+			
+			if (camera[1] < 0){
+				camera[1] = 0;
+			} else {
+				int y;
+				if (camera[1] > (y = m.mapHmax - width + m.cellHeight)){
+					camera[1] = y;
+				}
+			}
 		}
 
 		Graphics2D g = ISlide.createGraphics();
