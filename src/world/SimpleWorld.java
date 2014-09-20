@@ -269,7 +269,7 @@ public class SimpleWorld extends JFrame implements Pinterface {
 				camera[1] = 0;
 			} else {
 				int y;
-				if (camera[1] > (y = m.mapHmax - width + m.cellHeight)){
+				if (camera[1] > (y = m.mapHmax - height + m.cellHeight)){
 					camera[1] = y;
 				}
 			}
