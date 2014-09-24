@@ -64,7 +64,7 @@ public class SimpleMapIO {
 	 * 
 	 * @return True iff the stream was opened successfully.
 	 */
-	public boolean openMap() {
+	public boolean openMap(String direction) {
 		if (!f.exists()) {
 			try {
 				if (!f.createNewFile()) {
@@ -76,21 +76,28 @@ public class SimpleMapIO {
 			}
 		}
 
-		if (openStream()) {
+		if (openStream(direction)) {
 			return true;
 		} else {
 			return false;
 		}
 	}
 
-	private boolean openStream() {
+	private boolean openStream(String direction) {
 		try {
-			FileOutputStream fos = new FileOutputStream(f, false);
-			BufferedOutputStream bos = new BufferedOutputStream(fos);
-			dO = new DataOutputStream(bos);
-			FileInputStream fis = new FileInputStream(f);
-			BufferedInputStream bis = new BufferedInputStream(fis);
-			dI = new DataInputStream(bis);
+			if (direction == "out"){
+				FileOutputStream fos = new FileOutputStream(f, false);
+				BufferedOutputStream bos = new BufferedOutputStream(fos);
+				dO = new DataOutputStream(bos);
+			}
+			else if (direction == "in"){
+				FileInputStream fis = new FileInputStream(f);
+				BufferedInputStream bis = new BufferedInputStream(fis);
+				dI = new DataInputStream(bis);
+			}
+			else {
+				JOptionPane.showMessageDialog(null, "Error: direction argument on openStream must be 'in' or 'out'", null, JOptionPane.PLAIN_MESSAGE);
+			}
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 			return false;
