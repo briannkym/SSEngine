@@ -43,6 +43,7 @@ import view.Projector;
  * rate. Also holds logic for starting the game along with rendering the frame.
  * 
  * @author Brian Nakayama
+ * @author Mark Groeneveld
  */
 public class SimpleWorld extends JFrame implements Pinterface {
 

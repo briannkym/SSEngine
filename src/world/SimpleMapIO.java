@@ -40,15 +40,16 @@ import javax.swing.JOptionPane;
  * TODO This class has been updated from pre 1.0, and needs to be tested.
  * 
  * @author Brian Nakayama
+ * @author Mark Groeneveld
  * @version 1.0
  */
 public class SimpleMapIO {
 	private File f;
 	private DataOutputStream dO;
 	private DataInputStream dI;
-	private boolean canPrint = false;
+	private boolean canPrint = false, canRead = false;
 	private SimpleWorldFactory swf;
-	
+
 	/**
 	 * Create a new IO object with the specified path.
 	 * 
@@ -64,7 +65,7 @@ public class SimpleMapIO {
 	 * 
 	 * @return True iff the stream was opened successfully.
 	 */
-	public boolean openMap(String direction) {
+	public boolean openMap(boolean read) {
 		if (!f.exists()) {
 			try {
 				if (!f.createNewFile()) {
@@ -76,28 +77,33 @@ public class SimpleMapIO {
 			}
 		}
 
-		if (openStream(direction)) {
-			return true;
-		} else {
-			return false;
-		}
+		return openStream(read);
+	}
+	
+	/**
+	 * Switches a stream to either read or write. Warning: This method will overwrite a file if read = false.
+	 * @param read True for an input stream, false for an output stream
+	 * @return True if the stream was successfully opened.
+	 */
+	public boolean setWriteRead(boolean read) {
+		closeMap();
+		return openStream(read);
 	}
 
-	private boolean openStream(String direction) {
+	private boolean openStream(boolean read) {
 		try {
-			if (direction == "out"){
-				FileOutputStream fos = new FileOutputStream(f, false);
-				BufferedOutputStream bos = new BufferedOutputStream(fos);
-				dO = new DataOutputStream(bos);
-			}
-			else if (direction == "in"){
+			if (read) {
 				FileInputStream fis = new FileInputStream(f);
 				BufferedInputStream bis = new BufferedInputStream(fis);
 				dI = new DataInputStream(bis);
+				canRead = true;
+			} else {
+				FileOutputStream fos = new FileOutputStream(f, false);
+				BufferedOutputStream bos = new BufferedOutputStream(fos);
+				dO = new DataOutputStream(bos);
+				canPrint = true;
 			}
-			else {
-				JOptionPane.showMessageDialog(null, "Error: direction argument on openStream must be 'in' or 'out'", null, JOptionPane.PLAIN_MESSAGE);
-			}
+
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 			return false;
@@ -191,16 +197,18 @@ public class SimpleMapIO {
 	 */
 	public SimpleMap readMap() {
 		try {
-			int count = dI.readInt();
-			SimpleMap m = new SimpleMap(dI.readInt(), dI.readInt(),
-					dI.readInt(), dI.readInt());
-			while (count > 0) {
-				swf.addSimpleObject(dI.readInt(), dI.readInt(), dI.readInt(),
-						dI.readUTF(), m);
-				count--;
-			}
+			if (canRead) {
+				int count = dI.readInt();
+				SimpleMap m = new SimpleMap(dI.readInt(), dI.readInt(),
+						dI.readInt(), dI.readInt());
+				while (count > 0) {
+					swf.addSimpleObject(dI.readInt(), dI.readInt(),
+							dI.readInt(), dI.readUTF(), m);
+					count--;
+				}
 
-			return m;
+				return m;
+			}
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(null, "Error: Couldn't read world.");
 			e.printStackTrace();
@@ -210,7 +218,7 @@ public class SimpleMapIO {
 	}
 
 	/**
-	 * Closes and input or output streams to the file.
+	 * Closes any input or output stream to the file.
 	 */
 	public void closeMap() {
 		try {
