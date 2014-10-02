@@ -182,6 +182,7 @@ public class SimpleMap {
 		o.pre_cx = x;
 		o.coor_y = y;
 		o.pre_cy = y;
+		o.updates = SimpleObject.NORMAL;
 		return true;
 	}
 
@@ -273,6 +274,9 @@ public class SimpleMap {
 					if (o.drawNext != null) {
 						zArray[i] = o.drawNext;
 						o.drawNext.drawPrevious = null;
+					}
+					else {
+						zArray[i] = null;
 					}
 					removed = true;
 				}
