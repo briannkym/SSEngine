@@ -36,6 +36,7 @@ package world;
  * reverse order.
  * 
  * @author Brian Nakayama @ * @see SimpleWorld
+ * @author Mark Groeneveld
  * @version 1.0
  */
 public class SimpleMap {
