@@ -158,7 +158,6 @@ public class SimpleMapIO {
 						for (; s != null; s = s.drawNext) {
 							count++;
 						}
-						break;
 					}
 				}
 
@@ -176,7 +175,6 @@ public class SimpleMapIO {
 							dO.writeInt(s.coor_y);
 							dO.writeUTF(s.getDescription());
 						}
-						break;
 					}
 				}
 				dO.flush();
