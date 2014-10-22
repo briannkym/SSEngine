@@ -39,7 +39,7 @@ import sprite.NullImg;
  * dynamic object on the screen.
  * 
  * @author Brian Nakayama
- * 
+ * @version 1.1
  */
 public abstract class SimpleObject {
 
@@ -381,6 +381,20 @@ public abstract class SimpleObject {
 		return coor_y;
 	}
 
+	/**
+	 * Attempt to remove the Object from any map it may be a part of.
+	 * @return True if the object belongs to a map and is removed.
+	 */
+	public boolean removeSelf(){
+		if(drawNext!=null && drawPrevious!=null){
+			m = null;
+			drawNext.drawPrevious = drawPrevious;
+			drawPrevious.drawNext = drawNext;
+			return true;
+		}
+		return false;
+	}
+	
 	/*
 	 * Used by the engine to draw the image onto the screen. Users should not
 	 * have to use/change/worry about this method.
@@ -388,7 +402,6 @@ public abstract class SimpleObject {
 	void paintImage(Graphics2D g, int[] camera) {
 		g.drawImage(i.getSlide(), coor_x + off[0] - camera[0], coor_y + off[1]
 				- camera[1], null);
-		updateNext = drawNext;
 	}
 
 	/**

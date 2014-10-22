@@ -41,7 +41,7 @@ import javax.swing.JOptionPane;
  * 
  * @author Brian Nakayama
  * @author Mark Groeneveld
- * @version 1.0
+ * @version 1.1
  */
 public class SimpleMapIO {
 	private File f;
@@ -79,10 +79,13 @@ public class SimpleMapIO {
 
 		return openStream(read);
 	}
-	
+
 	/**
-	 * Switches a stream to either read or write. Warning: This method will overwrite a file if read = false.
-	 * @param read True for an input stream, false for an output stream
+	 * Switches a stream to either read or write. Warning: This method will
+	 * overwrite a file if read = false.
+	 * 
+	 * @param read
+	 *            True for an input stream, false for an output stream
 	 * @return True if the stream was successfully opened.
 	 */
 	public boolean setWriteRead(boolean read) {
@@ -126,6 +129,8 @@ public class SimpleMapIO {
 	 * Note: Introducing limited global state through a singleton can be used to
 	 * set up default settings for a SimpleWorld.
 	 * 
+	 * Objects with an id of -1 will not be saved.
+	 * 
 	 * 
 	 * The format of the saved file will be:
 	 * 
@@ -153,11 +158,9 @@ public class SimpleMapIO {
 		try {
 			if (canPrint) {
 				int count = 0;
-				for (SimpleObject s : m.zArray) {
-					if (s != null) {
-						for (; s != null; s = s.drawNext) {
-							count++;
-						}
+				for (SimpleObject s = m.getDrawBegin(); s != null; s = s.drawNext) {
+					if(s.id()!=-1){
+						count++;
 					}
 				}
 
@@ -167,16 +170,15 @@ public class SimpleMapIO {
 				dO.writeInt(m.cellWidth);
 				dO.writeInt(m.cellHeight);
 
-				for (SimpleObject s : m.zArray) {
-					if (s != null) {
-						for (; s != null; s = s.drawNext) {
-							dO.writeInt(s.id());
-							dO.writeInt(s.coor_x);
-							dO.writeInt(s.coor_y);
-							dO.writeUTF(s.getDescription());
-						}
+				for (SimpleObject s = m.getDrawBegin(); s != null; s = s.drawNext) {
+					if(s.id()!=-1){
+						dO.writeInt(s.id());
+						dO.writeInt(s.coor_x);
+						dO.writeInt(s.coor_y);
+						dO.writeUTF(s.getDescription());
 					}
 				}
+
 				dO.flush();
 				return true;
 			}

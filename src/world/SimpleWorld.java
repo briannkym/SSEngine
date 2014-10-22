@@ -44,6 +44,7 @@ import view.Projector;
  * 
  * @author Brian Nakayama
  * @author Mark Groeneveld
+ * @version 1.1
  */
 public class SimpleWorld extends JFrame implements Pinterface {
 
@@ -257,20 +258,20 @@ public class SimpleWorld extends JFrame implements Pinterface {
 		if (cameraStalk != null) {
 			camera[0] = cameraStalk.coor_x - (width - m.cellWidth) / 2;
 			camera[1] = cameraStalk.coor_y - (height - m.cellHeight) / 2;
-			if (camera[0] < 0){
+			if (camera[0] < 0) {
 				camera[0] = 0;
 			} else {
 				int x;
-				if (camera[0] > (x = m.mapWmax - width + m.cellWidth)){
+				if (camera[0] > (x = m.mapWmax - width + m.cellWidth)) {
 					camera[0] = x;
 				}
 			}
-			
-			if (camera[1] < 0){
+
+			if (camera[1] < 0) {
 				camera[1] = 0;
 			} else {
 				int y;
-				if (camera[1] > (y = m.mapHmax - height + m.cellHeight)){
+				if (camera[1] > (y = m.mapHmax - height + m.cellHeight)) {
 					camera[1] = y;
 				}
 			}
@@ -293,24 +294,18 @@ public class SimpleWorld extends JFrame implements Pinterface {
 			}
 		}
 
+		
 		// Update all objects.
 		if (update) {
-			for (SimpleObject s : m.zArray) {
-				if (s != null) {
-					for (; s != null; s = s.updateNext) {
-						s.newUpdate();
-					}
-				}
+			for (SimpleObject s = m.getDrawBegin(); s != null; s = s.updateNext) {
+				s.newUpdate();
 			}
 		}
-
+		
 		// Paint all objects.
-		for (SimpleObject s : m.zArray) {
-			if (s != null) {
-				for (; s != null; s = s.drawNext) {
-					s.paintImage(g, camera);
-				}
-			}
+		for (SimpleObject s = m.getDrawBegin(); s != null; s = s.drawNext) {
+			s.updateNext = s.drawNext;
+			s.paintImage(g, camera);
 		}
 
 		// Paint the world object over the projection.

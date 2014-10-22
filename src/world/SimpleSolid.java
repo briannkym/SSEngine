@@ -29,7 +29,7 @@ package world;
  * y-index on the screen.
  * 
  * @author Brian Nakayama
- * @version 1.0
+ * @version 1.1
  */
 public abstract class SimpleSolid extends SimpleObject {
 
@@ -44,7 +44,7 @@ public abstract class SimpleSolid extends SimpleObject {
 	 * Create a SimpleSolid optimized for moving.
 	 * 
 	 * @param NO_UPDATES
-	 *            True if you need the object to move.
+	 *            True if you need the object to not move.
 	 */
 	public SimpleSolid(boolean NO_UPDATES) {
 		super(NO_UPDATES_NO_COLLIDES);
@@ -111,6 +111,8 @@ public abstract class SimpleSolid extends SimpleObject {
 	 * to move at all if encountering an overlap (TODO). The solids resort
 	 * themselves when the y-axis has changed rows in the map.
 	 * 
+	 * TODO Update for changes in map.
+	 * 
 	 * @param x
 	 *            The new x-coordinate.
 	 * @param y
@@ -130,6 +132,9 @@ public abstract class SimpleSolid extends SimpleObject {
 			if (collisions[0] == null
 					|| (collisions[0] == this && collisions[1] == null)) {
 
+				int pre_y = coor_y / m.cellHeight;
+				int new_y = y / m.cellHeight;
+				
 				int relY = y / m.cellHeight - coor_y / m.cellWidth;
 
 				pre_cx = coor_x;
@@ -137,8 +142,8 @@ public abstract class SimpleSolid extends SimpleObject {
 				coor_x = x;
 				coor_y = y;
 
-				m.map[pre_cy / m.cellHeight][pre_cx / m.cellWidth] = null;
-				m.map[coor_y / m.cellHeight][coor_x / m.cellWidth] = this;
+				m.map[pre_y][pre_cx / m.cellWidth] = null;
+				m.map[new_y][coor_x / m.cellWidth] = this;
 
 				/*
 				 * Only if we've made a significant change in the y direction do
@@ -147,62 +152,17 @@ public abstract class SimpleSolid extends SimpleObject {
 				if (relY == 0) {
 					return true;
 				} else {
-					// First remove the solid from the draw list.
-					final boolean searchForward = relY > 0;
-
-					if (m.zArray[m.solidIndex] == this) {
-						// Check head of the list.
-						if (!searchForward || drawNext == null
-								|| drawNext.coor_y >= coor_y) {
-							return true;
-						}
-						m.zArray[m.solidIndex] = drawNext;
-						drawNext.drawPrevious = null;
-					} else if (drawNext != null) {
-						// Otherwise it is in the middle.
-						drawNext.drawPrevious = drawPrevious;
-						drawPrevious.drawNext = drawNext;
-					} else {
-						// Finally check the tail.
-						if (searchForward) {
-							return true;
-						}
-						drawPrevious.drawNext = null;
-					}
-					SimpleObject o;
-
-					if (searchForward) {
-						for (o = drawNext; o.drawNext != null; o = o.drawNext) {
-							if (o.drawNext.coor_y >= coor_y) {
-								drawPrevious = o;
-								drawNext = o.drawNext;
-								drawNext.drawPrevious = this;
-								drawPrevious.drawNext = this;
-								return true;
-							}
-						}
-						drawPrevious = o;
-						drawNext = null;
-						drawPrevious.drawNext = this;
-						return true;
-					} else {
-						for (o = drawPrevious; o.drawPrevious != null; o = o.drawPrevious) {
-							if (o.drawPrevious.coor_y <= coor_y) {
-								drawPrevious = o.drawPrevious;
-								drawNext = o;
-								drawNext.drawPrevious = this;
-								drawPrevious.drawNext = this;
-								return true;
-							}
-						}
-						m.zArray[m.solidIndex] = this;
-						drawNext = o;
-						drawPrevious = null;
-						drawNext.drawPrevious = this;
-						return true;
-					}
+					//Remove from old position
+					drawNext.drawPrevious = drawPrevious;
+					drawPrevious.drawNext = drawNext;
+					//Insert into new position
+					drawPrevious = m.mapArray[new_y].drawPrevious;
+					drawNext = m.mapArray[new_y];
+					drawPrevious.drawNext = this;
+					drawNext.drawPrevious = this;
+					return true;
 				}
-			} else {
+			} else { /*Notify all objects in the collision list.*/
 				for (SimpleSolid S : collisions) {
 					if (S != null) {
 						if (S != this) {
@@ -227,6 +187,23 @@ public abstract class SimpleSolid extends SimpleObject {
 		return this;
 	}
 
+	/**
+	 * Attempt to remove the Object from any map it may be a part of.
+	 * @return True if the object belongs to a map and is removed.
+	 */
+	public boolean removeSelf(){
+		if(drawNext!=null && drawPrevious!=null){
+			final int x_n = coor_x / m.cellWidth;
+			final int y_n = coor_y / m.cellHeight;
+			m.map[y_n][x_n] = null;
+			m = null;
+			drawNext.drawPrevious = drawPrevious;
+			drawPrevious.drawNext = drawNext;
+			return true;
+		}
+		return false;
+	}
+	
 	/**
 	 * Get the solid from the specified coordinates.
 	 * 
