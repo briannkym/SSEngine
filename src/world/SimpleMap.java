@@ -360,4 +360,11 @@ public class SimpleMap {
 		return false;
 	}
 
+	public int getMapPixelWidth() {
+		return mapWmax;
+	}
+	
+	public int getMapPixelHeight() {
+		return mapHmax;
+	}
 }

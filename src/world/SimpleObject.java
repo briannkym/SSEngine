@@ -39,6 +39,7 @@ import sprite.NullImg;
  * dynamic object on the screen.
  * 
  * @author Brian Nakayama
+ * @author Mark Groeneveld
  * 
  */
 public abstract class SimpleObject {
@@ -486,5 +487,9 @@ public abstract class SimpleObject {
 	 */
 	public SimpleSolid getSolid() {
 		return null;
+	}
+	
+	public SimpleMap getMap() {
+		return m;
 	}
 }
