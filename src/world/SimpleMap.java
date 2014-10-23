@@ -164,6 +164,7 @@ public class SimpleMap {
 		o.pre_cx = x;
 		o.coor_y = y;
 		o.pre_cy = y;
+		o.updates = SimpleObject.NORMAL;
 		return true;
 	}
 
@@ -352,5 +353,12 @@ public class SimpleMap {
 			return addSimpleObject(o, o.coor_x, o.coor_y, z);
 		}
 		return false;
+	}
+	public int getMapPixelWidth() {
+		return mapWmax;
+	}
+	
+	public int getMapPixelHeight() {
+		return mapHmax;
 	}
 }
