@@ -166,6 +166,7 @@ public class SimpleMap {
 		o.pre_cx = x;
 		o.coor_y = y;
 		o.pre_cy = y;
+		o.updates = SimpleObject.NORMAL;
 		return true;
 	}
 
@@ -366,7 +367,7 @@ public class SimpleMap {
 	 * on the x-axis.
 	 * @return The max pixel
 	 */
-	public int getMapPixelWidth(){
+	public int getMapPixelWidth() {
 		return mapWmax;
 	}
 	
@@ -375,7 +376,7 @@ public class SimpleMap {
 	 * on the y-axis.
 	 * @return The max pixel
 	 */
-	public int getMapPixelHeight(){
+	public int getMapPixelHeight() {
 		return mapHmax;
 	}
 }
