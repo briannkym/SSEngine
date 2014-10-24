@@ -22,8 +22,6 @@ THE SOFTWARE.
 */
 package world;
 
-import java.awt.Graphics2D;
-import java.awt.image.BufferedImage;
 /**
  * Empty object for the SimpleWorld to call on. Does nothing when
  * update is called.
@@ -45,7 +43,7 @@ private static NullSimpleWorldObject n = new NullSimpleWorldObject();
     }
 
 	@Override
-	public void updateScreen(BufferedImage bi, Graphics2D g) {
+	public void update() {
 	}
 
 }

@@ -19,36 +19,60 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
- */
-package world;
+*/
+package desktopView;
+
+import java.awt.image.BufferedImage;
+
+import control.DesktopControl;
+
+import sprite.Img;
+import sprite.ImgListener;
 
 /**
- * This empty class cannot be removed once added to a map, which means
- * it cannot be added again. It also cannot be moved or collided with.
+ * The basic image. Holds a buffered image.
  * @author Brian Nakayama
- * @version 1.1
  */
-public class StaticSimpleObject extends SimpleObject{
+public class Sprite implements Img{
 
-	public StaticSimpleObject(){
-		super(NO_UPDATES_NO_COLLIDES);
-	}
-	
+    private BufferedImage bI;
+    private DesktopControl dc = DesktopControl.getInstance();
+    
+    /**
+     * Creates a sprite with the specified buffered image.
+     * @param bI The buffered image to store.
+     */
+    public Sprite(BufferedImage bI)
+    {
+        this.bI=bI;
+    }
+
+    public void setSlide(int i)
+    {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public void setListener(ImgListener iL)
+    {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    /**
+	 * Draws the colored image using {@link DesktopCanvas}
+	 */
 	@Override
-	public void collision(SimpleObject s) {
+	public void drawSlide(int x, int y) {
+		dc.getCanvas().buffer.drawImage(bI, x, y, null);
 	}
 
 	@Override
-	public void update() {
+	public int getWidth() {
+		return bI.getWidth();
 	}
 
 	@Override
-	public int id() {
-		return -1;
+	public int getHeight() {
+		return bI.getHeight();
 	}
-	
-	public boolean removeSelf(){
-		return false;
-	}
-	
+
 }

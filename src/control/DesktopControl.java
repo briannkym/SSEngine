@@ -19,45 +19,36 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
-*/
-package sprite;
+ */
+package control;
 
-import java.awt.image.BufferedImage;
+import desktopView.DesktopCanvas;
 
 /**
- * The basic image. Holds a buffered image.
+ * Not intended for direct use by user. This is simple a linker class
+ * for the DesktopCanvas and it's associated images. It is likely to 
+ * change in the future and is here just for good SE.
  * @author Brian Nakayama
+ * @version 1.2 Part of MVC update
  */
-public class Sprite implements Img<BufferedImage>{
+public class DesktopControl {
+	private DesktopCanvas canvas;
+	
+	private static final DesktopControl dc = new DesktopControl();
 
-    private BufferedImage bI;
+	private DesktopControl() {
+	}
 
-    /**
-     * Creates a sprite with the specified buffered image.
-     * @param bI The buffered image to store.
-     */
-    public Sprite(BufferedImage bI)
-    {
-        this.bI=bI;
-    }
+	public static DesktopControl getInstance() {
+		return dc;
+	}
 
-    /**
-     * Returns the stored buffered image.
-     */
-    public BufferedImage getSlide()
-    {
-        return bI;
-    }
+	public void setCanvas(DesktopCanvas canvas) {
+		this.canvas = canvas;
+	}
 
-
-    public void setSlide(int i)
-    {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    public void setListener(ImgListener iL)
-    {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
+	public DesktopCanvas getCanvas() {
+		return canvas;
+	}
+	
 }

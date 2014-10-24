@@ -22,16 +22,12 @@ THE SOFTWARE.
  */
 package world;
 
-import java.awt.Graphics2D;
 import java.io.File;
-import java.awt.image.BufferedImage;
 
 import sound.Sound;
 import sound.SoundUpload;
 import sound.TrackPlayer;
-import sprite.ColorImg;
 import sprite.Img;
-import sprite.ImgUpload;
 import sprite.NullImg;
 
 /**
@@ -39,7 +35,8 @@ import sprite.NullImg;
  * dynamic object on the screen.
  * 
  * @author Brian Nakayama
- * @version 1.1
+ * @version 1.2 Now all code is abstracted as MVC.
+ * @since 1.1
  */
 public abstract class SimpleObject {
 
@@ -53,7 +50,7 @@ public abstract class SimpleObject {
 			NO_COLLIDES = 2, NORMAL = 3;
 
 	// By default use the null image.
-	private Img<BufferedImage> i = NullImg.getInstance();
+	Img i = NullImg.getInstance();
 
 	// By default update and check for collisions.
 	int updates = NORMAL;
@@ -67,6 +64,7 @@ public abstract class SimpleObject {
 	// The offset for drawing the image.
 	protected final int[] off = { 0, 0 };
 
+	final SimpleSolid[] collisions = new SimpleSolid[4];
 	/**
 	 * Override with behavior for collisions. SimpleObjects can only collide
 	 * with SimpleSolids, and will overlap when colliding. SimpleSolids can
@@ -180,7 +178,7 @@ public abstract class SimpleObject {
 	 *            The address of the image.
 	 * 
 	 */
-	public SimpleObject(String sprite) {
+	public SimpleObject(Img sprite) {
 		this(sprite, NORMAL);
 	}
 
@@ -221,10 +219,9 @@ public abstract class SimpleObject {
 	 * @param optimization
 	 *            NO_UPDATES_NO_COLLIDES, NO_UPDATES, NO_COLLIDES, or NORMAL
 	 */
-	public SimpleObject(String sprite, int optimization) {
+	public SimpleObject(Img sprite, int optimization) {
 		this(optimization);
-		File f = new File(sprite);
-		this.i = ImgUpload.getInstance(f.getParentFile()).getImg(f.getName());
+		this.i = sprite;
 	}
 
 	/**
@@ -322,7 +319,8 @@ public abstract class SimpleObject {
 	void newUpdate() {
 		switch (updates) {
 		case NORMAL:
-			for (SimpleSolid S : m.getCollisions(coor_x, coor_y)) {
+			m.calculateCollisions(coor_x, coor_y, this);
+			for (SimpleSolid S : collisions) {
 				if (S != null) {
 					if (S != this) {
 						S.collision(this);
@@ -394,43 +392,6 @@ public abstract class SimpleObject {
 		}
 		return false;
 	}
-	
-	/*
-	 * Used by the engine to draw the image onto the screen. Users should not
-	 * have to use/change/worry about this method.
-	 */
-	void paintImage(Graphics2D g, int[] camera) {
-		g.drawImage(i.getSlide(), coor_x + off[0] - camera[0], coor_y + off[1]
-				- camera[1], null);
-	}
-
-	/**
-	 * Sets the Image to be drawn to the screen. Not the efficient way to do
-	 * this. See the constructor for {@link #SimpleObject(String) SimpleObject}
-	 * for more information.
-	 * 
-	 * @param sprite
-	 *            The address of the new image to draw.
-	 */
-	public void setImage(String sprite) {
-		File f = new File(sprite);
-		this.i = ImgUpload.getInstance(f.getParentFile()).getImg(f.getName());
-	}
-
-	/**
-	 * Sets a color image to be drawn to the screen. If many objects are using
-	 * the same ColorImg, then the image should be created statically.
-	 * 
-	 * @param argb
-	 *            The 32 bit color defined by 0xAARRGGBB.
-	 * @param width
-	 *            The width of the image.
-	 * @param height
-	 *            The height of the image.
-	 */
-	public void setImage(int argb, int width, int height) {
-		this.i = new ColorImg(argb, width, height);
-	}
 
 	/**
 	 * Set the image to be rendered.
@@ -438,7 +399,7 @@ public abstract class SimpleObject {
 	 * @param i
 	 *            The image object to be rendered.
 	 */
-	public void setImage(Img<BufferedImage> i) {
+	public void setImage(Img i) {
 		this.i = i;
 	}
 
@@ -447,7 +408,7 @@ public abstract class SimpleObject {
 	 * 
 	 * @return The current image.
 	 */
-	public Img<BufferedImage> getImage() {
+	public Img getImage() {
 		return i;
 	}
 
@@ -499,5 +460,13 @@ public abstract class SimpleObject {
 	 */
 	public SimpleSolid getSolid() {
 		return null;
+	}
+	
+	/**
+	 * Get the map that this object is currently a part of.
+	 * @return The current map
+	 */
+	public SimpleMap getMap(){
+		return m;
 	}
 }

@@ -19,25 +19,24 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
-*/
+ */
 
-package view;
-
-import java.awt.image.BufferedImage;
+package clock;
 
 /**
- * For uses with the Projector, which calls the method iUpdate before Projecting. In a
- * class implementing this, the iUpdate should contain any calculations required
- * for updating the Image/Slide, of Projector.
- *
+ * For uses with the Clock, which calls the method update periodically. In a
+ * class implementing this, the update should contain any calculations that are
+ * time critical in a consistent periodic sense.
+ * 
  * @author Brian Nakayama
- *
+ * 
  */
-public interface Pinterface
-{
-    /**
-     * Override this in an object that you want to receive updates from the projector.
-     * @param ISlide
-     */
-	public void iUpdate(BufferedImage ISlide);
+public interface Cinterface {
+	/**
+	 * Override this in an object that you want to receive updates from the
+	 * projector.
+	 * 
+	 * @param ISlide
+	 */
+	public void update();
 }

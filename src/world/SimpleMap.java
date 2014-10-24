@@ -50,15 +50,17 @@ public class SimpleMap {
 	final SimpleObject[] zArray;
 	// The z-indexes per row of the map.
 	final SimpleObject[] mapArray;
-	
+
 	// The width of a cell (smallest unit) for collisions.
-	final int cellWidth;
+	public final int cellWidth;
 	// The height of a cell (smallest unit) for collisions.
-	final int cellHeight;
-	// The width of a map. Equals map[0].length * cellWidth.
-	final int mapWmax;
-	// The height of a map. Equals map.length * cellHeight.
-	final int mapHmax;
+	public final int cellHeight;
+	// The width of possible coordinates in a map. Equals (map[0].length - 1) *
+	// cellWidth.
+	public final int mapWmax;
+	// The height of possible coordinates in a map. Equals (map.length - 1) *
+	// cellHeight.
+	public final int mapHmax;
 
 	// Holds the last object in the list of that index.
 	int solidIndex;
@@ -149,8 +151,8 @@ public class SimpleMap {
 	public boolean addSimpleObject(SimpleObject o, int x, int y, int z) {
 		SimpleSolid s = o.getSolid();
 		if (s != null) {
-			return addSimpleSolid(s,x,y);
-		} else if (z < zArray.length && o.m == null){
+			return addSimpleSolid(s, x, y);
+		} else if (z < zArray.length && o.m == null) {
 			o.drawPrevious = zArray[z];
 			o.drawNext = zArray[z].drawNext;
 			o.drawPrevious.drawNext = o;
@@ -176,13 +178,14 @@ public class SimpleMap {
 	 *            The x-coordinate (in pixels)
 	 * @param y
 	 *            The y-coordinate (in pixels)
-
+	 * 
 	 * @return True iff the object was successfully added.
 	 */
 	public boolean addSimpleSolid(SimpleSolid s, int x, int y) {
 		final int x_n = x / cellWidth;
 		final int y_n = y / cellHeight;
-		if (getCollisions(x, y)[0] == null) {
+		calculateCollisions(x, y, s);
+		if (s.collisions[0] == null) {
 			map[y_n][x_n] = s;
 			s.drawPrevious = mapArray[y_n].drawPrevious;
 			s.drawNext = mapArray[y_n];
@@ -198,23 +201,25 @@ public class SimpleMap {
 		s.pre_cy = y;
 		return true;
 	}
-	
+
 	/**
 	 * Get the beginning of the drawList
+	 * 
 	 * @return The first element in the drawList
 	 */
-	SimpleObject getDrawBegin(){
+	SimpleObject getDrawBegin() {
 		return zArray[0];
 	}
-	
+
 	/**
 	 * Get the end of the drawList
+	 * 
 	 * @return The last element in the drawList
 	 */
-	SimpleObject getDrawEnd(){
+	SimpleObject getDrawEnd() {
 		return zArray[zArray.length - 1];
 	}
-	
+
 	/**
 	 * Prints all of the objects currently registered to the map.
 	 */
@@ -252,13 +257,17 @@ public class SimpleMap {
 	 *            The y position of the top left corner of the object.
 	 * @return An array (width = 4) containing up to 4 possible collisions.
 	 */
-	public SimpleSolid[] getCollisions(int x, int y) {
-		int grid_x = x / cellWidth;
-		int grid_y = y / cellHeight;
+	public void calculateCollisions(int x, int y, SimpleObject s) {
+		final int grid_x = x / cellWidth;
+		final int grid_y = y / cellHeight;
 
-		SimpleSolid[] collisions = new SimpleSolid[4];
+		s.collisions[0] = null;
+		s.collisions[1] = null;
+		s.collisions[2] = null;
+		s.collisions[3] = null;
 
-		int index = 0;
+		int index = 0;		
+		
 		for (int y0 = Math.max(grid_y - 1, 0); y0 <= Math.min(grid_y + 1,
 				map.length - 1); y0++) {
 			for (int x0 = Math.max(grid_x - 1, 0); x0 <= Math.min(grid_x + 1,
@@ -266,28 +275,26 @@ public class SimpleMap {
 				if (map[y0][x0] != null) {
 					if (Math.abs(map[y0][x0].coor_x - x) < cellWidth
 							&& Math.abs(map[y0][x0].coor_y - y) < cellHeight) {
-						collisions[index] = map[y0][x0];
+						s.collisions[index] = map[y0][x0];
 						index++;
 					}
 				}
 			}
 		}
-		return collisions;
 	}
 
 	/**
 	 * Removes a SimpleObject from the map.
 	 * 
-	 * <b>If the object is a solid, this method will first try to
-	 * remove it from it's z-index and then it'll try to remove it from the map.
-	 * </b>
+	 * <b>If the object is a solid, this method will first try to remove it from
+	 * it's z-index and then it'll try to remove it from the map. </b>
 	 * 
 	 * @param o
 	 *            The object to be removed.
 	 * @return True if the object was successfully removed.
 	 */
 	public boolean removeSimpleObject(SimpleObject o) {
-		if(o.m == this){
+		if (o.m == this) {
 			return o.removeSelf();
 		}
 		return false;
@@ -317,19 +324,19 @@ public class SimpleMap {
 	 */
 	public void clearAll() {
 		zArray[0] = new StaticSimpleObject();
-		for(int n = 1; n < zArray.length; n++){
+		for (int n = 1; n < zArray.length; n++) {
 			zArray[n] = new StaticSimpleObject();
 			zArray[n].drawPrevious = zArray[n - 1];
 			zArray[n - 1].drawNext = zArray[n];
 		}
-		
+
 		mapArray[0] = new StaticSimpleObject();
-		for(int y = 1; y < mapArray.length; y++){
+		for (int y = 1; y < mapArray.length; y++) {
 			mapArray[y] = new StaticSimpleObject();
 			mapArray[y].drawPrevious = mapArray[y - 1];
 			mapArray[y - 1].drawNext = mapArray[y];
 		}
-		
+
 		zArray[solidIndex].drawNext = mapArray[0];
 		zArray[solidIndex].drawNext.drawPrevious = zArray[solidIndex];
 		mapArray[mapArray.length - 1].drawNext = zArray[solidIndex + 1];
@@ -352,5 +359,23 @@ public class SimpleMap {
 			return addSimpleObject(o, o.coor_x, o.coor_y, z);
 		}
 		return false;
+	}
+	
+	/**
+	 * Returns the max pixel at which an object can exist
+	 * on the x-axis.
+	 * @return The max pixel
+	 */
+	public int getMapPixelWidth(){
+		return mapWmax;
+	}
+	
+	/**
+	 * Returns the max pixel at which an object can exist
+	 * on the y-axis.
+	 * @return The max pixel
+	 */
+	public int getMapPixelHeight(){
+		return mapHmax;
 	}
 }

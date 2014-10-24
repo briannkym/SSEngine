@@ -1,5 +1,6 @@
 package test;
 
+import desktopView.DesktopCanvas;
 import world.SimpleMap;
 import world.SimpleWorld;
 
@@ -19,7 +20,11 @@ public class testMain {
 				}
 			}
 		}
-		SimpleWorld w = new SimpleWorld(m, 800, 600, "Testing");
+		
+		//Note the new code below:
+		DesktopCanvas dc = new DesktopCanvas(800, 600, "Test");
+		//End of new code.
+		SimpleWorld w = new SimpleWorld(m, dc);
 		w.setCameraStalk(cam);
 		w.start(false);
 	}

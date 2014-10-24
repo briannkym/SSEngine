@@ -20,18 +20,24 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
  */
-package sprite;
+package desktopView;
 
 import java.awt.image.BufferedImage;
+
+import control.DesktopControl;
+
+import sprite.Img;
+import sprite.ImgListener;
 
 /**
  * Stores a width x height square with a 32 bit ARGB value.
  * 
  * @author Brian
  */
-public class ColorImg implements Img<BufferedImage> {
+public class ColorImg implements Img {
 
 	private BufferedImage bI;
+    private DesktopControl dc = DesktopControl.getInstance();
 
 	/**
 	 * Create a colored image with the specified dimension and the ARGB 32 bit
@@ -53,15 +59,31 @@ public class ColorImg implements Img<BufferedImage> {
 		}
 	}
 
-	public BufferedImage getSlide() {
-		return bI;
+	/**
+	 * Draws the colored image using {@link DesktopCanvas}
+	 */
+	@Override
+	public void drawSlide(int x, int y) {
+		dc.getCanvas().buffer.drawImage(bI, x, y, null);
 	}
-
+	
+	@Override
 	public void setSlide(int i) {
 		throw new UnsupportedOperationException("Not supported yet.");
 	}
 
+	@Override
 	public void setListener(ImgListener iL) {
 		throw new UnsupportedOperationException("Not supported yet.");
+	}
+	
+	@Override
+	public int getWidth() {
+		return bI.getWidth();
+	}
+
+	@Override
+	public int getHeight() {
+		return bI.getHeight();
 	}
 }

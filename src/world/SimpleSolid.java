@@ -22,6 +22,8 @@ THE SOFTWARE.
  */
 package world;
 
+import sprite.Img;
+
 /**
  * The basic colliding object. All collisions happen with a SimpleSolid.
  * 
@@ -29,7 +31,8 @@ package world;
  * y-index on the screen.
  * 
  * @author Brian Nakayama
- * @version 1.1
+ * @version 1.2 Now all code is abstracted as MVC.
+ * @since 1.1
  */
 public abstract class SimpleSolid extends SimpleObject {
 
@@ -64,7 +67,7 @@ public abstract class SimpleSolid extends SimpleObject {
 	 *            The path to the image.
 	 * @see SimpleObject#SimpleObject(String)
 	 */
-	public SimpleSolid(String sprite) {
+	public SimpleSolid(Img sprite) {
 		super(sprite, NO_COLLIDES);
 	}
 
@@ -81,7 +84,7 @@ public abstract class SimpleSolid extends SimpleObject {
 	 *            True if you need the object to move.
 	 * @see SimpleObject#SimpleObject(String)
 	 */
-	public SimpleSolid(String sprite, boolean NO_UPDATES) {
+	public SimpleSolid(Img sprite, boolean NO_UPDATES) {
 		super(sprite, NO_UPDATES_NO_COLLIDES);
 		if (!NO_UPDATES) {
 			this.updates = NO_COLLIDES;
@@ -127,54 +130,72 @@ public abstract class SimpleSolid extends SimpleObject {
 			x += coor_x;
 			y += coor_y;
 		}
-		if (x >= 0 && x <= m.mapWmax && y >= 0 && y <= m.mapHmax) {
-			SimpleSolid[] collisions = m.getCollisions(x, y);
-			if (collisions[0] == null
-					|| (collisions[0] == this && collisions[1] == null)) {
 
-				int pre_y = coor_y / m.cellHeight;
-				int new_y = y / m.cellHeight;
-				
-				int relY = y / m.cellHeight - coor_y / m.cellWidth;
+		//Check if the object is trying to leave the map.
+		if (x > 0) {
+			if (x > m.mapWmax) {
+				x = m.mapWmax;
+			}
+		} else {
+			x = 0;
+		}
 
-				pre_cx = coor_x;
-				pre_cy = coor_y;
-				coor_x = x;
-				coor_y = y;
+		if (y > 0) {
+			if (y > m.mapHmax) {
+				y = m.mapHmax;
+			}
+		} else {
+			y = 0;
+		}
 
-				m.map[pre_y][pre_cx / m.cellWidth] = null;
-				m.map[new_y][coor_x / m.cellWidth] = this;
+		//Calculate if the move is feasible.
+		m.calculateCollisions(x, y, this);
+		if (collisions[0] == null
+				|| (collisions[0] == this && collisions[1] == null)) {
 
-				/*
-				 * Only if we've made a significant change in the y direction do
-				 * we need to do the complicated sorting part.
-				 */
-				if (relY == 0) {
-					return true;
-				} else {
-					//Remove from old position
-					drawNext.drawPrevious = drawPrevious;
-					drawPrevious.drawNext = drawNext;
-					//Insert into new position
-					drawPrevious = m.mapArray[new_y].drawPrevious;
-					drawNext = m.mapArray[new_y];
-					drawPrevious.drawNext = this;
-					drawNext.drawPrevious = this;
-					return true;
-				}
-			} else { /*Notify all objects in the collision list.*/
-				for (SimpleSolid S : collisions) {
-					if (S != null) {
-						if (S != this) {
-							S.collision(this);
-							collision(S);
-						}
-					} else {
-						break;
+			int pre_y = coor_y / m.cellHeight;
+			int new_y = y / m.cellHeight;
+
+			int relY = y / m.cellHeight - coor_y / m.cellWidth;
+
+			pre_cx = coor_x;
+			pre_cy = coor_y;
+			coor_x = x;
+			coor_y = y;
+
+			m.map[pre_y][pre_cx / m.cellWidth] = null;
+			m.map[new_y][coor_x / m.cellWidth] = this;
+
+			/*
+			 * Only if we've made a significant change in the y direction do we
+			 * need to do the complicated sorting part.
+			 */
+			if (relY == 0) {
+				return true;
+			} else {
+				// Remove from old position
+				drawNext.drawPrevious = drawPrevious;
+				drawPrevious.drawNext = drawNext;
+				// Insert into new position
+				drawPrevious = m.mapArray[new_y].drawPrevious;
+				drawNext = m.mapArray[new_y];
+				drawPrevious.drawNext = this;
+				drawNext.drawPrevious = this;
+				return true;
+			}
+		} else { /* Notify all objects in the collision list. */
+			for (SimpleSolid S : collisions) {
+				if (S != null) {
+					if (S != this) {
+						S.collision(this);
+						collision(S);
 					}
+				} else {
+					break;
 				}
 			}
 		}
+
 		return false;
 	}
 
@@ -189,10 +210,11 @@ public abstract class SimpleSolid extends SimpleObject {
 
 	/**
 	 * Attempt to remove the Object from any map it may be a part of.
+	 * 
 	 * @return True if the object belongs to a map and is removed.
 	 */
-	public boolean removeSelf(){
-		if(drawNext!=null && drawPrevious!=null){
+	public boolean removeSelf() {
+		if (drawNext != null && drawPrevious != null) {
 			final int x_n = coor_x / m.cellWidth;
 			final int y_n = coor_y / m.cellHeight;
 			m.map[y_n][x_n] = null;
@@ -203,7 +225,7 @@ public abstract class SimpleSolid extends SimpleObject {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Get the solid from the specified coordinates.
 	 * 

@@ -27,7 +27,7 @@ package sprite;
  * Use this with an Animation to see when the animation ends.
  * @author Brian Nakayama
  */
-interface ImgListener
+public interface ImgListener
 {
     public void slideEnd();
 }

@@ -22,8 +22,6 @@ THE SOFTWARE.
  */
 package world;
 
-import java.awt.Graphics2D;
-import java.awt.image.BufferedImage;
 import java.io.File;
 
 import sound.*;
@@ -34,21 +32,17 @@ import sound.*;
  * This class has one method that the user overrides to paint over the screen.
  * 
  * @author Brian Nakayama
- * 
+ * @version 1.2 Now all code is abstracted as MVC.
  */
 public abstract class SimpleWorldObject {
 
 	/**
-	 * Update screen using the graphics or by directly manipulating the pixels.
+	 * Game logic held in SimpleWorldObject should be updated here.
+	 * This is also a good place to update any game view there
+	 * might be using a controller.
 	 * 
-	 * Game logic held in SimpleWorldObject should also be updated here.
-	 * 
-	 * @param bi
-	 *            The BufferedImage on which the other objects are drawn.
-	 * @param g
-	 *            The graphics context for the BufferedImage.
 	 */
-	public abstract void updateScreen(BufferedImage bi, Graphics2D g);
+	public abstract void update();
 
 	/**
 	 * Play a sound.

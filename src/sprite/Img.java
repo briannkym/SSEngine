@@ -23,23 +23,43 @@ THE SOFTWARE.
 package sprite;
 
 /**
+ * This class along with {@link ImgCanvas} abstract the view away
+ * from the rest of the objects while allowing images to each have
+ * an image. The current solution uses the Strategy pattern to
+ * have images essentially draw themselves.
  *
  * @author Brian Nakayama
- * @version 1.0
+ * 
+ * @version 1.2 Now all code is abstracted as MVC.
+ * @since 1.0
  */
-public interface Img<T>
+public interface Img
 {
 	/**
 	 * Returns the current slide of the image.
+	 * @param x The x position of the upper left corner
+	 * @param y The y position of the upper left corner
 	 */
-    public T getSlide();
+    public void drawSlide(int x, int y);
 	
+    /**
+     * Return the width of the image
+     * @return The width
+     */
+    public int getWidth();
+    
+    /**
+     * Return the height of the image
+     * @return The height
+     */
+    public int getHeight();
+    
     /**
 	 * Sets the internal index of the image.
 	 * Only supported in animations.
 	 */
     public void setSlide(int i);
-	
+
     /**
 	 * Sets a listener for the end of an animation.
 	 * Only supported in animations.

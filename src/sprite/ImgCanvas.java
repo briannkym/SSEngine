@@ -22,68 +22,24 @@ THE SOFTWARE.
  */
 package sprite;
 
-import java.awt.image.BufferedImage;
-
 /**
- * Stores an animation that updates upon returning a slide.
- * 
- * @author Brian Nakayama
- */
-public class Animation implements Img<BufferedImage> {
-
-	private BufferedImage[] bI;
-	private int i = 0;
-	private ImgListener iL = NullListener.getInstance();
-
-	/**
-	 * Initializes the animation with an array of bufferedImages.
-	 * 
-	 * @param bI
-	 *            The array of images.
-	 */
-	public Animation(BufferedImage[] bI) {
-		this.bI = bI;
-	}
-
-	/**
-	 * Returns a new animation that uses the same array of images.
-	 * 
-	 * @return A new animation.
-	 */
-	public Animation getClone() {
-		return new Animation(bI);
-	}
-
-	/**
-	 * Returns an image and increments the index of the array.
-	 */
-	public BufferedImage getSlide() {
-		BufferedImage rB = bI[i];
-
-		if (i < bI.length - 1) {
-			i++;
-		} else {
-			iL.slideEnd();
-			i = 0;
-		}
-
-		return rB;
-	}
-
-	/**
-	 * Set the index to be displayed.
-	 */
-	public void setSlide(int i) {
-		this.i = i;
-	}
-
-	/**
-	 * Set an Image Listener.
-	 * 
-	 * @see ImgListener
-	 */
-	public void setListener(ImgListener iL) {
-		this.iL = iL;
-	}
-
+*
+* A canvas is what is painted to the screen and generally
+* has control over how things are drawn. This is the view,
+* and as such is an abstract representation of how a screen
+* may be painted.
+* 
+* @see Img
+*
+* @author Brian Nakayama
+* 
+* @version 1.2 Now all code is abstracted as MVC.
+*/
+public interface ImgCanvas {
+	public int getWidth();
+	public int getHeight();
+	public void paint();
+	public void fullScreen();
+	public void windowScreen();
+	public void register();
 }

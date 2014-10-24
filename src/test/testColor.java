@@ -1,8 +1,7 @@
 package test;
 
-import java.awt.image.BufferedImage;
+import desktopView.ColorImg;
 
-import sprite.ColorImg;
 import sprite.Img;
 import world.SimpleObject;
 
@@ -10,7 +9,7 @@ public class testColor extends SimpleObject{
 
 	private int move = (int)(Math.random() * 4);
 	private static final int[][] direction = {{0,6},{6,0},{0,-6},{-6,0}};
-	private final Img<BufferedImage> random = new ColorImg(0x99000000 | (int)(Math.random() * 0xFFFFFF), 20, 30);
+	private final Img random = new ColorImg(0x99000000 | (int)(Math.random() * 0xFFFFFF), 20, 30);
 	
 	public testColor(){
 		this.setImage(random);

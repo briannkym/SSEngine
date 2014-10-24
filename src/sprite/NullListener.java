@@ -23,6 +23,8 @@ THE SOFTWARE.
 
 package sprite;
 
+import desktopView.Animation;
+
 /**
  * The default listener for an animation.
  * @author Brian Nakayama
