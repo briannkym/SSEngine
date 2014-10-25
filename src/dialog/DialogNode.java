@@ -24,7 +24,7 @@ THE SOFTWARE.
 package dialog;
 
 /**
- * Example of player character.
+ * Node data structure for implementing dialog graphs.
  * 
  * @author Mark Groeneveld
  * @author Brian Nakayama
@@ -36,33 +36,40 @@ public class DialogNode {
 	private String text;
 	private double[][] probSet;
 	private boolean npc;
+	private double x, y;
 	
 	/**
 	 * Constructor
 	 * 
-	 * @param npcIn
+	 * @param npc
 	 *            Is this node spoken by an NPC (Non-Playable Character)?
-	 * @param textIn
-	 *            Text to be spoken. The unique string "initial" indicates a dialog's starting node. This node will not be spoken, but leads to one or more other nodes which are.
-	 * @param probSetIn
-	 *            Array of probabilities the NPC uses to select a child node. There may be multiple arrays corresponding to different strategies. First index is strategy, second index is child. Each array should sum to 1 and should be of same length as children. This variable is also described as this node's row of the discrete time Markov chain's transition matrix.  
+	 * @param text
+	 *            Text to be spoken. The unique string "initial" indicates a dialog's starting node.
+	 *            This node will not be spoken, but leads to one or more other nodes which are.
+	 * @param probSet
+	 *            Array of probabilities the NPC uses to select a child node.
+	 *            There may be multiple arrays corresponding to different strategies.
+	 *            First index is strategy, second index is child.
+	 *            Each array should sum to 1 and should be of same length as children.
+	 *            This variable is also described as this node's row of the discrete time Markov chain's transition matrix, the part of which is nonzero for all strategies.  
 	 * @param ChildrenIn
-	 *            Array of children nodes. Nodes are addressed by their text (i.e. a node's .getText() is its HashMap key). If children is null this is an end node. 
+	 *            Array of children nodes. Nodes are addressed by their text (i.e. a node's .getText() is its HashMap key).
+	 *            If children is null this is an end node. 
 	 */		
-	public DialogNode(boolean npcIn, String textIn, double[][] probSetIn ,String[] childrenIn) { 
-		if (!npcIn && textIn == null)
-			throw new IllegalArgumentException("Player-controlled nodes must have text.");
-		if (childrenIn == null && probSetIn != null && !npcIn)
-			throw new IllegalArgumentException("Player-controlled nodes with probability arrays must have children");
-		if (childrenIn != null && probSetIn == null && !npcIn)
+	public DialogNode(boolean npc, String text, double[][] probSet ,String[] children) { 
+		if (text == null)
+			throw new IllegalArgumentException("Nodes must have text.");
+		if (children == null && probSet != null)
+			throw new IllegalArgumentException("Nodes with probability arrays must have children");
+		if (children != null && probSet == null && !npc)
 			throw new IllegalArgumentException("Player-controlled nodes with children must have probability arrays");
-		if (probSetIn != null) {
-			for (int s = 0; s < probSetIn.length; s++) {
+		if (probSet != null) {
+			for (int s = 0; s < probSet.length; s++) {
 				double sum = 0;
-				for (int c = 0; c < probSetIn[s].length; c++) {
-					sum += probSetIn[s][c];
-					if (childrenIn != null && probSetIn != null)
-						if (childrenIn.length != probSetIn[s].length)
+				for (int c = 0; c < probSet[s].length; c++) {
+					sum += probSet[s][c];
+					if (children != null && probSet != null)
+						if (children.length != probSet[s].length)
 							throw new IllegalArgumentException("Probability array " + Integer.toString(s) + " is not of same length as children.");
 				}
 				if (sum > 1.01 || sum < 0.99)
@@ -70,10 +77,12 @@ public class DialogNode {
 			}
 		}
 		
-		children = childrenIn;
-		text = textIn;
-		npc = npcIn;
-		probSet = probSetIn;
+		this.children = children;
+		this.text = text;
+		this.npc = npc;
+		this.probSet = probSet;
+//		x = xIn;
+//		y = yIn;
 	}
 	
 	public String getText() {
@@ -92,19 +101,38 @@ public class DialogNode {
 		return probSet;
 	}
 	
-	void changeText(String newText) {
-		text = newText;
+	public double getX() {
+		return x;
 	}
 	
-	void changeProbSet(double[][] newPSet) {
-		probSet = newPSet;
+	public double getY() {
+		return y;
 	}
 	
-	void changeText(String[] newChildren) {
-		children = newChildren;
+	void changeText(String text) {
+		this.text = text;
 	}
 	
-	void changeNPC(boolean newNPC) {
-		npc = newNPC;
+	void changeProbSet(double[][] probSet) {
+		this.probSet = probSet;
+	}
+	
+	void switchNPC() {
+		if (npc)
+			npc = false;
+		else
+			npc = true;
+	}
+	
+	void changeChildren(String[] children) {
+		this.children = children;
+	}
+	
+	public void setX(double x) {
+		this.x = x;
+	}
+	
+	public void setY(double y) {
+		this.y = y;
 	}
 }
