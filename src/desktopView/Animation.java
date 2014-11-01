@@ -76,7 +76,7 @@ public class Animation implements Img {
 				i = 0;
 			}
 		}
-		dc.getCanvas().buffer.drawImage(rB, x, y, null);
+		dc.getCanvas().drawImage(rB, x, y);
 	}
 
 	/**
