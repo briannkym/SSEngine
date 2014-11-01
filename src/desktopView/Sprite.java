@@ -62,7 +62,7 @@ public class Sprite implements Img{
 	 */
 	@Override
 	public void drawSlide(int x, int y) {
-		dc.getCanvas().buffer.drawImage(bI, x, y, null);
+		dc.getCanvas().drawImage(bI, x, y);
 	}
 
 	@Override
