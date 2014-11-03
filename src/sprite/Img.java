@@ -55,6 +55,12 @@ public interface Img
     public int getHeight();
     
     /**
+     * Set whether or not to treat the image as an animation.
+     * @param animate True to animate
+     */
+    public void animate(boolean animate);
+    
+    /**
 	 * Sets the internal index of the image.
 	 * Only supported in animations.
 	 */

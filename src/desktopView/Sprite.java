@@ -75,4 +75,9 @@ public class Sprite implements Img{
 		return bI.getHeight();
 	}
 
+	@Override
+	public void animate(boolean animate) {
+		
+	}
+
 }

@@ -200,7 +200,6 @@ public class DesktopCanvas extends JFrame implements IDesktopCanvas {
 
 	@Override
 	public void register() {
-		DesktopControl.getInstance().setCanvas(this);
 	}
 
 	@Override

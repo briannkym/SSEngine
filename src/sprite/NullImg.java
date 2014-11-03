@@ -74,4 +74,8 @@ public class NullImg implements Img{
 		return 0;
 	}
 
+	@Override
+	public void animate(boolean animate) {
+	}
+
 }

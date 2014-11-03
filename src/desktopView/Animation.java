@@ -97,14 +97,17 @@ public class Animation implements Img {
 
 	@Override
 	public int getWidth() {
-		// TODO Auto-generated method stub
-		return 0;
+		return bI[0].getWidth();
 	}
 
 	@Override
 	public int getHeight() {
-		// TODO Auto-generated method stub
-		return 0;
+		return bI[0].getHeight();
+	}
+
+	@Override
+	public void animate(boolean animate) {
+		cycle = animate;
 	}
 
 	

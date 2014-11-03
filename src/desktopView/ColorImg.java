@@ -86,4 +86,9 @@ public class ColorImg implements Img {
 	public int getHeight() {
 		return bI.getHeight();
 	}
+
+	@Override
+	public void animate(boolean animate) {
+		
+	}
 }
