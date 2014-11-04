@@ -28,6 +28,7 @@ import control.DesktopControl;
 
 import sprite.Img;
 import sprite.ImgListener;
+import sprite.NullListener;
 
 /**
  * Stores a width x height square with a 32 bit ARGB value.
@@ -38,7 +39,8 @@ public class ColorImg implements Img {
 
 	private BufferedImage bI;
     private DesktopControl dc = DesktopControl.getInstance();
-
+    private ImgListener iL = NullListener.getInstance();
+    
 	/**
 	 * Create a colored image with the specified dimension and the ARGB 32 bit
 	 * color.
@@ -65,6 +67,7 @@ public class ColorImg implements Img {
 	@Override
 	public void drawSlide(int x, int y) {
 		dc.getCanvas().drawImage(bI, x, y);
+		iL.slideEnd();
 	}
 	
 	@Override
@@ -74,7 +77,7 @@ public class ColorImg implements Img {
 
 	@Override
 	public void setListener(ImgListener iL) {
-		throw new UnsupportedOperationException("Not supported yet.");
+        this.iL = iL;
 	}
 	
 	@Override

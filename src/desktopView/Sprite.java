@@ -28,6 +28,7 @@ import control.DesktopControl;
 
 import sprite.Img;
 import sprite.ImgListener;
+import sprite.NullListener;
 
 /**
  * The basic image. Holds a buffered image.
@@ -37,6 +38,7 @@ public class Sprite implements Img{
 
     private BufferedImage bI;
     private DesktopControl dc = DesktopControl.getInstance();
+    private ImgListener iL = NullListener.getInstance();
     
     /**
      * Creates a sprite with the specified buffered image.
@@ -54,7 +56,7 @@ public class Sprite implements Img{
 
     public void setListener(ImgListener iL)
     {
-        throw new UnsupportedOperationException("Not supported yet.");
+        this.iL = iL;
     }
 
     /**
@@ -63,6 +65,7 @@ public class Sprite implements Img{
 	@Override
 	public void drawSlide(int x, int y) {
 		dc.getCanvas().drawImage(bI, x, y);
+		iL.slideEnd();
 	}
 
 	@Override
