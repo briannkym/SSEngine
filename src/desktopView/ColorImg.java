@@ -35,7 +35,7 @@ import sprite.NullListener;
  * 
  * @author Brian
  */
-public class ColorImg implements Img {
+public class ColorImg extends Img {
 
 	private BufferedImage bI;
     private DesktopControl dc = DesktopControl.getInstance();
@@ -71,16 +71,6 @@ public class ColorImg implements Img {
 	}
 	
 	@Override
-	public void setSlide(int i) {
-		throw new UnsupportedOperationException("Not supported yet.");
-	}
-
-	@Override
-	public void setListener(ImgListener iL) {
-        this.iL = iL;
-	}
-	
-	@Override
 	public int getWidth() {
 		return bI.getWidth();
 	}
@@ -90,8 +80,4 @@ public class ColorImg implements Img {
 		return bI.getHeight();
 	}
 
-	@Override
-	public void animate(boolean animate) {
-		
-	}
 }
