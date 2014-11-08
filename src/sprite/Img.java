@@ -75,4 +75,13 @@ public abstract class Img
     public void accept(ImgCommand iC){
     	iC.accept(this);
     }
+
+    //Gets the pixel at x, y
+    public int[] getPixel(int x, int y);
+    
+    //Sets the pixel at x, y
+    public void setPixel(int x, int y, int[] val);
+    
+    //Checks for transparency
+    public boolean checkForCol(int[] val);
 }
