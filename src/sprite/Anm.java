@@ -19,59 +19,55 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
-*/
+ */
+
 package sprite;
 
 /**
- * This class along with {@link ImgCanvas} abstract the view away
- * from the rest of the objects while allowing images to each have
- * an image. The current solution uses the Strategy pattern to
- * have images essentially draw themselves.
- *
+ * Implements many methods that only make sense for an animation.
  * @author Brian Nakayama
- * 
- * @version 1.2 Now all code is abstracted as MVC.
- * @since 1.0
+ * @version 1.2
  */
-public abstract class Img
-{
-
-	protected ImgListener iL = NullListener.getInstance();
-	/**
-	 * Returns the current slide of the image.
-	 * @param x The x position of the upper left corner
-	 * @param y The y position of the upper left corner
-	 */
-    public abstract void drawSlide(int x, int y);
+public abstract class Anm extends Img{
 	
     /**
-     * Return the width of the image
-     * @return The width
-     */
-    public abstract int getWidth();
-    
-    /**
-     * Return the height of the image
-     * @return The height
-     */
-    public abstract int getHeight();
-    
-    /**
-	 * Sets a listener for the end of an animation.
+	 * Sets the internal index of the image.
 	 * Only supported in animations.
 	 */
-    public void setListener(ImgListener iL){
-    	if(iL==null){
-    		this.iL = NullListener.getInstance();
-    	} else {
-        	this.iL = iL;
-    	}
-    }
+    public abstract void setSlide(int i);
     
     /**
-     * A version of the command pattern. 
+     * Get the slide at index i
+     * @param i The index of the slide.
+     * @return A new image containing the slide.
+     */
+    public abstract Img getSlide(int i);
+    
+    /**
+     * Get a clone with the specific image slides of this one.
+     * @param i The indexes of the slides for the clone
+     * @return A new animation clone with only a subset of slides.
+     */
+    public abstract Anm getClone(int... i);
+    
+    /**
+     * Return a copy object of this one.
+     * @return An animation clone.
+     */
+    public abstract Anm getClone();
+    
+    /**
+     * Set whether or not to treat the image as an animation.
+     * @param animate True to animate
+     */
+    public abstract void animate(boolean animate);
+
+    /**
+     * A version of the command pattern. Since animations contain extra code,
+     * allow for an accept method to take an animation.
      * @param iC
      */
+    @Override
     public void accept(ImgCommand iC){
     	iC.accept(this);
     }

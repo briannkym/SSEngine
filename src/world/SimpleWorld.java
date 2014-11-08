@@ -22,11 +22,11 @@ THE SOFTWARE.
  */
 package world;
 
+import control.DeviceControl;
 import clock.Cinterface;
 import clock.Clock;
 
 import sprite.Img;
-import sprite.ImgCanvas;
 
 /**
  * Holds the camera and interfaces with the projector which controls the frame
@@ -44,7 +44,7 @@ public class SimpleWorld implements Cinterface {
 	private final int[] camera = { 0, 0 };
 	private SimpleObject cameraStalk = null;
 
-	public final ImgCanvas canvas;
+	public final DeviceControl dv;
 	private SimpleMap m;
 	private SimpleWorldObject swo = NullSimpleWorldObject.getInstance();
 	private boolean update = true;
@@ -60,9 +60,9 @@ public class SimpleWorld implements Cinterface {
 	 * @param title
 	 *            The title of the application.
 	 */
-	public SimpleWorld(SimpleMap m, ImgCanvas canvas) {
+	public SimpleWorld(SimpleMap m, DeviceControl dv) {
 		this.m = m;
-		this.canvas = canvas;
+		this.dv = dv;
 		this.clock = new Clock(20.0f, this);
 	}
 
@@ -75,11 +75,11 @@ public class SimpleWorld implements Cinterface {
 	 *            screen will be the size defined in the constructor in pixels.
 	 */
 	public void start(boolean fullscreen) {
-		canvas.register();
+		dv.getCanvas().register();
 		if (fullscreen) {
-			canvas.fullScreen();
+			dv.getCanvas().fullScreen();
 		} else {
-			canvas.windowScreen();
+			dv.getCanvas().windowScreen();
 		}
 		clock.init();
 	}
@@ -195,15 +195,15 @@ public class SimpleWorld implements Cinterface {
 
 		// Update camera coordinates based off of the width and height.
 		if (cameraStalk != null) {
-			camera[0] = cameraStalk.coor_x - (canvas.getWidth() - m.cellWidth)
+			camera[0] = cameraStalk.coor_x - (dv.getCanvas().getWidth() - m.cellWidth)
 					/ 2;
 			camera[1] = cameraStalk.coor_y
-					- (canvas.getHeight() - m.cellHeight) / 2;
+					- (dv.getCanvas().getHeight() - m.cellHeight) / 2;
 			if (camera[0] < 0) {
 				camera[0] = 0;
 			} else {
 				int x;
-				if (camera[0] > (x = m.mapWmax - canvas.getWidth()
+				if (camera[0] > (x = m.mapWmax - dv.getCanvas().getWidth()
 						+ m.cellWidth)) {
 					camera[0] = x;
 				}
@@ -213,7 +213,7 @@ public class SimpleWorld implements Cinterface {
 				camera[1] = 0;
 			} else {
 				int y;
-				if (camera[1] > (y = m.mapHmax - canvas.getHeight()
+				if (camera[1] > (y = m.mapHmax - dv.getCanvas().getHeight()
 						+ m.cellHeight)) {
 					camera[1] = y;
 				}
@@ -224,8 +224,8 @@ public class SimpleWorld implements Cinterface {
 		if (background != null) {
 			int bg_width = background.getWidth();
 			int bg_height = background.getHeight();
-			for (int x = camera[0] % bg_width - bg_width; x < canvas.getWidth(); x += bg_width) {
-				for (int y = camera[1] % bg_height - bg_height; y < canvas
+			for (int x = camera[0] % bg_width - bg_width; x < dv.getCanvas().getWidth(); x += bg_width) {
+				for (int y = camera[1] % bg_height - bg_height; y < dv.getCanvas()
 						.getHeight(); y += bg_height) {
 					background.drawSlide(x, y);
 				}
@@ -248,6 +248,6 @@ public class SimpleWorld implements Cinterface {
 
 		// Update the world object last.
 		swo.update();
-		canvas.paint();
+		dv.getCanvas().paint();
 	}
 }

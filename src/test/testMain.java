@@ -1,5 +1,6 @@
 package test;
 
+import control.DesktopControl;
 import desktopView.DesktopCanvas;
 import world.SimpleMap;
 import world.SimpleWorld;
@@ -23,8 +24,10 @@ public class testMain {
 		
 		//Note the new code below:
 		DesktopCanvas dc = new DesktopCanvas(800, 600, "Test");
+		DesktopControl dv = DesktopControl.getInstance();
+		dv.setCanvas(dc);
 		//End of new code.
-		SimpleWorld w = new SimpleWorld(m, dc);
+		SimpleWorld w = new SimpleWorld(m, dv);
 		w.setCameraStalk(cam);
 		w.start(false);
 	}

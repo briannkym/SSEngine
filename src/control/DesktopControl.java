@@ -22,7 +22,12 @@ THE SOFTWARE.
  */
 package control;
 
+import java.io.File;
+
+import sprite.ImgCanvas;
+import sprite.Img;
 import desktopView.DesktopCanvas;
+import desktopView.DesktopImgUpload;
 
 /**
  * Not intended for direct use by user. This is simple a linker class
@@ -31,7 +36,7 @@ import desktopView.DesktopCanvas;
  * @author Brian Nakayama
  * @version 1.2 Part of MVC update
  */
-public class DesktopControl {
+public class DesktopControl implements DeviceControl{
 	private DesktopCanvas canvas;
 	
 	private static final DesktopControl dc = new DesktopControl();
@@ -43,12 +48,24 @@ public class DesktopControl {
 		return dc;
 	}
 
-	public void setCanvas(DesktopCanvas canvas) {
-		this.canvas = canvas;
+	public boolean setCanvas(ImgCanvas canvas) {
+		if(canvas instanceof DesktopCanvas){
+			this.canvas = (DesktopCanvas)canvas;
+			return true;
+		}
+		return false;
 	}
 
 	public DesktopCanvas getCanvas() {
 		return canvas;
 	}
+
+	@Override
+	public Img getImg(String s) {
+		File f = new File(s);
+		return DesktopImgUpload.getInstance(f.getParentFile()).getImg(f.getName());
+	}
+	
+	
 	
 }
