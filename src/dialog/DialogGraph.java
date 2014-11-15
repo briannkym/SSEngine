@@ -35,49 +35,77 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import javax.swing.JOptionPane;
 
 /**
- * Methods for creating, changing, saving, and loading dialog graphs.
+ * This class contains methods for creating, changing, saving,
+ * loading, and validating dialog graphs.
+ * 
+ * A dialog graph (dialog or graph for short) is a directed
+ * graph representing a game dialog between a player and a
+ * non-player character (NPC). Each vertex (node) of the graph
+ * (a DialogNode) represents something spoken by a player
+ * or non-player character. The edges represent parent/child
+ * relationships between the nodes.
+ * 
+ * The dialog starts at the
+ * 'initial' node and moves forward through other nodes based
+ * on player choices and NPC choices. The NPC choices are
+ * probabilistic. The dialog ends when a node with no children
+ * is reached.
+ * 
+ * 
  * 
  * @author Mark Groeneveld
  * @version 1.0
  */
+//TODO nodes should be able to change environmental flags
 
-//TODO better comments
+//TODO finish top documentation
 public class DialogGraph {
+	/**
+	 * Map of nodes in this dialog graph. A node's key is its text.
+	 */
 	private HashMap<String, DialogNode> nodeMap = new HashMap<String, DialogNode>(50);
 	
-	
+	/**
+	 * Loads dialog graph from file.
+	 * 
+	 * @param filename name of save file in the resources/dialogs/ directory
+	 */
 	public void load(String filename) {
+		HashMap<DialogNode, String[]> childrenTextMap = new HashMap<DialogNode, String[]>();		
+		
 		Document dom;
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		try {
 			DocumentBuilder db = dbf.newDocumentBuilder();
-			dom = db.parse(new File(filename));		
+			dom = db.parse(new File(filename));
 			Element doc = dom.getDocumentElement();
 			
+			//Iterates over each DialogNode element.
 			NodeList nodeList = doc.getElementsByTagName("DialogNode");
 			for (int n = 0; n < nodeList.getLength(); n++) {
 				Element dialogNodeElement = (Element) nodeList.item(n);
 				
+				//Gets the node's text, NPC status, x, and y data.
 				String text = dialogNodeElement.getElementsByTagName("Text").item(0).getTextContent();
 				boolean isNPC = Boolean.parseBoolean(dialogNodeElement.getElementsByTagName("NPC").item(0).getTextContent());
 				Double x = Double.parseDouble(dialogNodeElement.getElementsByTagName("X").item(0).getTextContent());
 				Double y = Double.parseDouble(dialogNodeElement.getElementsByTagName("Y").item(0).getTextContent());
 				
+				//Gets the node's children. For now they are saved as strings.
+				//Later they are added to the node as DialogNodes.
 				NodeList childrenNodeList = dialogNodeElement.getElementsByTagName("Child");
 				String[] children;
-				if (childrenNodeList.getLength() == 0)
-						children = null;
-				else
-					children = new String[childrenNodeList.getLength()];
+				children = new String[childrenNodeList.getLength()];
 				for (int c = 0; c < childrenNodeList.getLength(); c++)
 					children[c] = childrenNodeList.item(c).getTextContent();
 				
+				//Gets the node's probability sets.
 				NodeList probSetNodeList = dialogNodeElement.getElementsByTagName("ProbSet");
 				HashMap<Integer, Double[]> probSet = new HashMap<Integer, Double[]>();
 				for (int s = 0; s < probSetNodeList.getLength(); s++) {
@@ -90,7 +118,13 @@ public class DialogGraph {
 					probSet.put(strategy, individualSet);
 				}
 				
-				addNode(new DialogNode(isNPC, text, probSet, children, x, y));
+				//Creates the node and adds it to the dialog.
+				DialogNode[] emptyArray = new DialogNode[0];
+				DialogNode node = new DialogNode(isNPC, text, probSet, emptyArray, x, y);
+				addNode(node);
+				
+				//Saves node's children for later addition.
+				childrenTextMap.put(node, children);
 			}
 			
 		} catch (ParserConfigurationException e) {
@@ -100,8 +134,24 @@ public class DialogGraph {
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
+		
+		//Adds children to nodes
+		for (DialogNode n : nodeMap.values()) {
+			DialogNode[] children = new DialogNode[childrenTextMap.get(n).length];
+			for (int child = 0; child < childrenTextMap.get(n).length; child++) {
+				children[child] = nodeMap.get(childrenTextMap.get(n)[child]);
+				if (children[child] == null)
+					throw new IllegalStateException("Child '" + childrenTextMap.get(n)[child] + "' of node '" + n.getText() + "' does not exist in this dialog.");
+			}			
+			n.setChildren(children);
+		}
 	}
 	
+	/**
+	 * Saves dialog graph to file.
+	 * 
+	 * @param filename name of save file in the resources/dialogs/ directory
+	 */
 	public void save(String filename) {
 		Document dom;
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -110,47 +160,53 @@ public class DialogGraph {
 			dom = db.newDocument();			
 			Element root = dom.createElement("NodeList");
 			
-			for (Object o : nodeMap.values().toArray()) {
+			//Iterates over every node in the dialog.
+			for (DialogNode n : nodeMap.values()) {
 				Element el, el2;
-				DialogNode n = (DialogNode) o;
 				el = dom.createElement("DialogNode");
 				
+				//Saves the node's text.
 				el2 = dom.createElement("Text");
 				el2.appendChild(dom.createTextNode(n.getText()));
 				el.appendChild(el2);
 				
+				//Saves the node's NPC status.
 				el2 = dom.createElement("NPC");
 				el2.appendChild(dom.createTextNode(Boolean.toString(n.getIsNPC())));
 				el.appendChild(el2);
 				
+				//Saves the node's x position.
 				el2 = dom.createElement("X");
 				el2.appendChild(dom.createTextNode(Double.toString(n.getX())));
 				el.appendChild(el2);
 				
+				//Saves the node's y position.
 				el2 = dom.createElement("Y");
 				el2.appendChild(dom.createTextNode(Double.toString(n.getY())));
 				el.appendChild(el2);
 				
-				if (n.getChildren() != null)
-					for (int c = 0; c < n.getChildren().length; c ++) {
-						el2 = dom.createElement("Child");
-//						el2.setAttribute("n", Integer.toString(c));
-						el2.appendChild(dom.createTextNode(n.getChildren()[c]));
-						el.appendChild(el2);
-					}
+				//Iterates over the node's children and saves them.
+				for (DialogNode child : n.getChildren()) {
+					el2 = dom.createElement("Child");
+//					el2.setAttribute("n", Integer.toString(c));
+					el2.appendChild(dom.createTextNode(child.getText()));
+					el.appendChild(el2);
+				}
 				
-				for (Object o2 : n.getProbSets().keySet().toArray()) {
+				//Iterates over the node's probability sets.
+				for (int strategy : n.getProbSets().keySet()) {
 					Element el3;
 					el2 = dom.createElement("ProbSet");
 					
 					el3 = dom.createElement("strategy");
-					el3.appendChild(dom.createTextNode(Integer.toString((Integer) o2)));
+					el3.appendChild(dom.createTextNode(Integer.toString(strategy)));
 					el2.appendChild(el3);
 					
-					for (int c = 0; c < n.getProbSets().get((Integer) o2).length; c++) {
+					//Iterates over the probability set's individual elements and saves them.
+					for (double value : n.getProbSets().get(strategy)) {
 						el3 = dom.createElement("value");
 //						el3.setAttribute("n", Integer.toString(c));
-						el3.appendChild(dom.createTextNode(Double.toString(n.getProbSets().get((Integer) o2)[c])));
+						el3.appendChild(dom.createTextNode(Double.toString(value)));
 						el2.appendChild(el3);
 					}
 					el.appendChild(el2);
@@ -167,6 +223,7 @@ public class DialogGraph {
 	            tr.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
 	            tr.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
 
+	            //Saves file.
 	            tr.transform(new DOMSource(dom), new StreamResult(new FileOutputStream(new File(filename))));
 	        } catch (TransformerException e) {
 	            System.out.println(e.getMessage());
@@ -178,7 +235,11 @@ public class DialogGraph {
 		}
 	}
 	
-	//TODO I could pass in a method as an argument for displaying the text in-game.
+	/**
+	 * Starts the flow of a dialog. Offers choices to player and responds for NPC.
+	 */
+	//TODO not sure how this should interact with a game
+	//TODO I could pass in a method as an argument for displaying the text in-game. Would require everyone to update to java 8 for lambda methods.
 	public void start() {
 		DialogNode cn = nodeMap.get("initial"); //current node
 		
@@ -191,28 +252,32 @@ public class DialogGraph {
 				else {
 					//NPC response
 					System.out.println(cn.getText());
-					if (cn.getChildren() == null)
+					if (cn.getChildren().length == 0)
 						break;
 					//player next response list
-					for (int c = 0; c < cn.getChildren().length; c++) {
-						System.out.println(Integer.toString(c) + " " + nodeMap.get(cn.getChildren()[c]).getText());
-					}
+					for (int child = 0; child < cn.getChildren().length; child++)
+						System.out.println(Integer.toString(child) + " " + cn.getChildren()[child].getText());
 					//gets user selection of response and updates current node
 					String response = JOptionPane.showInputDialog(null, "Response", "Response", JOptionPane.PLAIN_MESSAGE);
-					cn = nodeMap.get(cn.getChildren()[Integer.parseInt(response)]);
+					cn = cn.getChildren()[Integer.parseInt(response)];
 				}
 			}
 			else {
 				//Player response
 				System.out.println(cn.getText());
-				if (cn.getChildren() == null)
+				if (cn.getChildren().length == 0)
 					break;
 				cn = NPCNextResponse(cn);
 			}
 		}
 	}
 	
-	//NPC next response selection
+	/**
+	 * Probabilistically decides which node the NPC chooses next.
+	 * 
+	 * @param cn current node of dialog
+	 * @return next node
+	 */
 	private DialogNode NPCNextResponse(DialogNode cn) {
 		//TODO each graph needs to have independent strategies
 		//TODO changeable strategies
@@ -220,173 +285,148 @@ public class DialogGraph {
 		double randomDouble = Math.random(); //random factor
 		double floor = 0;
 		double ceiling = 0;
-		for (int i = 0; i < cn.getChildren().length; i++) {
+		for (int child = 0; child < cn.getChildren().length; child++) {
 			if (cn.getProbSets().get(strategy) != null)
-				ceiling += cn.getProbSets().get(strategy)[i];
+				ceiling += cn.getProbSets().get(strategy)[child];
 			else
 				ceiling += cn.getProbSets().get(strategy)[0];
 			if ( randomDouble >= floor && randomDouble < ceiling)
-				return nodeMap.get(cn.getChildren()[i]);
+				return cn.getChildren()[child];
 			floor += ceiling;
 		}
 		return null;
 	}
 	
+	/**
+	 * Adds a node to the dialog graph.
+	 */
 	public void addNode(DialogNode node) {
 		if (nodeMap.put(node.getText(), node) != null)
 			throw new IllegalArgumentException("A node with that text already exists in this dialog.");
 	}
 	
-	public void removeNode(String text) {
-		if (nodeMap.remove(text) == null)
-			throw new IllegalArgumentException("A node with that text does not exist in this dialog.");
+	/**
+	 * Removes a node from the dialog graph.
+	 * 
+	 * @param node node to be removed
+	 */
+	public void removeNode(DialogNode node) {
+		if (nodeMap.remove(node.getText()) == null)
+			throw new IllegalArgumentException("That node does not exist in this dialog.");
 		
 		//Removes all references to removed node
-		Collection<DialogNode> collection = nodeMap.values();
-		Object[] dnArray = collection.toArray();
-		for (int i = 0; i < dnArray.length; i++) { //Iterates over every node
-			DialogNode n = (DialogNode) dnArray[i];
-			if (n.getChildren() != null) //If node has children
-				for (int c = 0; c < n.getChildren().length; c++) { //Iterates over that node's children
-					if (n.getChildren()[c].equals(text)) { //If child matches removed node
-						String[] newChildren = new String[n.getChildren().length - 1]; //New child array for parent node
-						for (int j = 0; j < n.getChildren().length - 1; j++) { //Creates new child array
-							if (j < c)
-								newChildren[j] = n.getChildren()[j];
-							else
-								newChildren[j] = n.getChildren()[j+1];
-						}
-						n.setChildren(newChildren);
-						if (n.getProbSets().size() > 0)
-							JOptionPane.showMessageDialog(null, "Make sure to change probability sets of node: " + n.getText(), "Alert", JOptionPane.PLAIN_MESSAGE);
+		//Iterates over every node
+		for (DialogNode n : nodeMap.values())
+			//Iterates over that node's children
+			for (int child = 0; child < n.getChildren().length; child++)
+				//If child matches removed node
+				if (n.getChildren()[child].equals(node.getText())) {
+					//Build new children array
+					DialogNode[] newChildren = new DialogNode[n.getChildren().length - 1];
+					for (int i = 0; i < n.getChildren().length - 1; i++) {
+						if (i < child)
+							newChildren[i] = n.getChildren()[i];
+						else
+							newChildren[i] = n.getChildren()[i+1];
 					}
+					n.setChildren(newChildren);
 				}
-		}
 	}
 	
+	/**
+	 * Changes a node's text. This method is in DialogGraph instead of DialogNode because
+	 * a node's text is its nodeMap key. So the node needs to be removed and re-added to the map. 
+	 * 
+	 * @param node node whose text is being changed
+	 * @param text node's new text
+	 */
 	public void changeNodeText(DialogNode node, String text) {
-		String oldText = node.getText();
-		
 		if (nodeMap.get(node.getText()) == null)
 			throw new IllegalArgumentException("That node does not exist in this dialog.");
 		if (nodeMap.get(text) != null)
 			throw new IllegalArgumentException("A node with that new text already exists in this dialog.");
+		
 		nodeMap.remove(node.getText());
 		node.setText(text);
 		nodeMap.put(text, node);
-		
-		//Changes all child references to changed node
-		Object[] dnArray = nodeMap.values().toArray();
-		//Iterates over all nodes in graph
-		for (Object o : dnArray) {
-			DialogNode n = (DialogNode) o;
-			//If node has children
-			if (n.getChildren() != null)
-				//Iterates over that node's children
-				for (int c = 0; c < n.getChildren().length; c++)
-					//If child matches removed node
-					if (n.getChildren()[c].equals(oldText)) {
-						String[] newChildren = n.getChildren();
-						newChildren[c] = text;
-						n.setChildren(newChildren);
-					}
-		}
 	}
 	
-//	public void switchNodeNPC(String text) {
-//		DialogNode n = nodeMap.get(text);
-//		if (n.getChildren() != null && n.getProbSet().size() == 0 && n.getIsNPC())
-//			throw new IllegalArgumentException("Player-controlled nodes with children must have probability arrays");			
-//		if (n.getIsNPC())
-//			n.setPC();
-//		else
-//			n.setNPC();
+//Method for changing a node's children that checks if children exists. Not sure if I want to use this.
+//	public void changeNodeChildren(DialogNode node, DialogNode[] children) {
+//		for (DialogNode child : children)
+//			if (child == null || nodeMap.get(child.getText()) == null)
+//				throw new IllegalStateException("Child '" + child.getText() + "' of node '" + node.getText() + "' does not exist in this dialog.");
+//	
+//		node.setChildren(children);
 //	}
 	
-//	public void changeNodeProbSet(String text, HashMap<Integer, Double[]> newProbSet) {
-//		DialogNode n = nodeMap.get(text);
-//		if (n == null)
-//			throw new IllegalArgumentException("A node with that text does not exist in this dialog.");
-//		if (newProbSet.size() > 0) {
-//			Double[][] array = (Double[][]) newProbSet.values().toArray();
-//			for (int s = 0; s < newProbSet.size(); s++) {
-//				double sum = 0;
-//				for (int c = 0; c < array[s].length; c++) {
-//					sum += array[s][c];
-//					if (n.getChildren() != null && newProbSet.size() > 0)
-//						if (n.getChildren().length != array[s].length)
-//							throw new IllegalArgumentException("Probability array " + Integer.toString(s) + " is not of same length as children.");
-//				}
-//				if (sum > 1.01 || sum < 0.99)
-//					throw new IllegalArgumentException("Each probability array must sum to 1.");
-//			}
-//		}
-//		n.setProbSet(newProbSet);
-//	}
-	
-//	public void changeNodeChildren(String text, String[] newChildren) {
-//		DialogNode n = nodeMap.get(text);
-//		if (n == null)
-//			throw new IllegalArgumentException("A node with that text does not exist in this dialog.");
-//		n.setChildren(newChildren);
-//	}
-	
-	//Runs various checks making sure the graph is valid
-	public boolean check() {
-		Object[] dnArray = nodeMap.values().toArray();
-		for (Object o : dnArray) {
-			DialogNode n = (DialogNode) o;
+	/**
+	 * Runs various checks making sure the graph is valid.
+	 * 
+	 * @return errors
+	 */
+	public ArrayList<String> check() {
+		boolean endNodeExists = false;
+		ArrayList<String> errorList = new ArrayList<String>();
+		for (DialogNode n : nodeMap.values()) {
+			//Checks for player nodes following player nodes.
+			if (!n.getIsNPC())
+				for (DialogNode child : n.getChildren())
+					if (!child.getIsNPC())
+						errorList.add("Player node '" + n.getText() + "' has a child '" + child.getText() + "' which is also a player node.");
 			
-			//Checks for player nodes following player nodes
-			if (!n.getIsNPC() && n.getChildren() != null)
-				for (int c = 0; c < n.getChildren().length; c++)
-					if (!nodeMap.get(n.getChildren()[c]).getIsNPC()) {
-						System.out.println("Error, player node '" + n.getText() + "' has a child '" + nodeMap.get(n.getChildren()[c]).getText() + "' which is also a player node.");
-						return false;
-					}
+			//Checks for NPC nodes following an NPC node that is not "initial".
+			if (n.getIsNPC() && !n.getText().equals("initial"))
+				for (DialogNode child : n.getChildren())
+					if (child.getIsNPC())
+						errorList.add("NPC node '" + n.getText() + "' has a child '" + child.getText() + "' which is also an NPC node.");
 			
-			//Checks for NPC nodes following an NPC node that is not "initial"
-			if (n.getIsNPC() && n.getChildren() != null && !n.getText().equals("initial"))
-				for (int c = 0; c < n.getChildren().length; c++)
-					if (nodeMap.get(n.getChildren()[c]).getIsNPC())
-						System.out.println("Warning, NPC node '" + n.getText() + "' has a child '" + nodeMap.get(n.getChildren()[c]).getText() + "' which is also an NPC node.");
+			//Checks if all probSet lengths match children lengths.
+			for (int strategy : n.getProbSets().keySet())
+				if (n.getProbSets().get(strategy).length != n.getChildren().length)
+					errorList.add("probSet size of node '" + n.getText() + "' in strategy " + Integer.toString(strategy) + " does not match the number of its children");
 			
-			//Checks if all probSet lengths match children lengths
-			if (n.getProbSets().size() != 0) {
-				Object[] strategies = n.getProbSets().keySet().toArray();
-				for (int strategyIndex = 0; strategyIndex < strategies.length; strategyIndex++) {
-					int strategy = (int) strategies[strategyIndex]; 
-					if (n.getProbSets().get(strategy).length != n.getChildren().length) {
-						System.out.println("Error, probSet size of node '" + n.getText() + "' in strategy " + Integer.toString(strategy) + " does not match the number of its children");
-						return false;
-					}
-				}
+			//Checks if every player node with children has a probability set.
+			if (!n.getIsNPC() && n.getChildren().length > 0 && n.getProbSets().size() == 0)
+				errorList.add("Node '" + n.getText() + "' does not have a probability set. All player nodes with children must have a probability set.");
+		
+			//Makes sure an end node exists. Part 1
+			if (n.getChildren().length == 0)
+				endNodeExists = true;
+			
+			//Checks if every node with a probability set has a default probability set.
+			if (!n.getProbSets().containsKey(0) && n.getProbSets().size() > 0)
+				errorList.add("Node '" + n.getText() + "' has a probability set but does not have a probability set for the default (0) strategy.");
+			
+			//Makes sure every probability set sums to 1.0.
+			for (int strategy : n.getProbSets().keySet()) {
+				double sum = 0.0;
+				for (double value : n.getProbSets().get(strategy))
+					sum += value;
+				if (sum > 1.01 || sum < 0.99)
+					errorList.add("Probability set (strategy " + Integer.toString(strategy) + ") of node '" + n.getText() + "' must sum to 1.0.");
 			}
 			
-			//Checks if each node's children are of same type (NPC or player)
-			if (n.getChildren() != null) {
-				boolean firstChildIsNPC = false;
-				for (int c = 0; c < n.getChildren().length; c++) {
-					if (c == 0)
-						firstChildIsNPC = nodeMap.get(n.getChildren()[c]).getIsNPC();
-					else
-						if (nodeMap.get(n.getChildren()[c]).getIsNPC() != firstChildIsNPC) {
-							System.out.println("Error, the children of node '" + n.getText() + "' are not all of the same type");
-							return false;
-						}
-				}
-			}
+			//TODO check for non-existent children
+			//TODO check for nodes without parents other than initial
 		}
 		
-		//Checks to make sure an initial node exists
-		if (nodeMap.get("initial") == null) {
-			System.out.println("Error, there is no initial node in this graph.");
-			return false;
-		}
+		//Makes sure an end node exists. Part 2
+		if (!endNodeExists)
+			errorList.add("Error, there is no end node in this graph.");
 		
-		return true;
+		//Makes sure an initial node exists.
+		if (!nodeMap.containsKey("initial"))
+			errorList.add("Error, there is no initial node in this graph.");
+		
+		return errorList;
 	}
 	
+	/**
+	 * Gets the nodes in this dialog graph.
+	 * 
+	 * @return map of nodes in this dialog graph
+	 */
 	public HashMap<String, DialogNode> getGraph() {
 		return nodeMap;
 	}
