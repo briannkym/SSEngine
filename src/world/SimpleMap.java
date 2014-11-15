@@ -258,7 +258,7 @@ public class SimpleMap {
 	 *            The y position of the top left corner of the object.
 	 * @return An array (width = 4) containing up to 4 possible collisions.
 	 */
-	public void calculateCollisions(int x, int y, SimpleObject s) {
+	public SimpleObject[] calculateCollisions(int x, int y, SimpleObject s) {
 		final int grid_x = x / cellWidth;
 		final int grid_y = y / cellHeight;
 
@@ -268,7 +268,7 @@ public class SimpleMap {
 		s.collisions[3] = null;
 
 		int index = 0;		
-		
+			
 		for (int y0 = Math.max(grid_y - 1, 0); y0 <= Math.min(grid_y + 1,
 				map.length - 1); y0++) {
 			for (int x0 = Math.max(grid_x - 1, 0); x0 <= Math.min(grid_x + 1,
@@ -282,6 +282,8 @@ public class SimpleMap {
 				}
 			}
 		}
+		
+		return s.collisions;
 	}
 
 	/**

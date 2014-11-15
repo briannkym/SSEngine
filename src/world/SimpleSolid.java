@@ -105,33 +105,14 @@ public abstract class SimpleSolid extends SimpleObject {
 		return false;
 	}
 
-	/**
-	 * The method for moving a SimpleSolid.
-	 * 
-	 * Similar to {@link SimpleObject#move(int, int, boolean)}, with the
-	 * exception that it does not allow movements that overlap with another
-	 * SimpleSolid's space. Furthermore, as of version 1.0 it does not attempt
-	 * to move at all if encountering an overlap (TODO). The solids resort
-	 * themselves when the y-axis has changed rows in the map.
-	 * 
-	 * TODO Update for changes in map.
-	 * 
-	 * @param x
-	 *            The new x-coordinate.
-	 * @param y
-	 *            The new y-coordinate.
-	 * @param relative
-	 *            True to move relative from your position, else move
-	 *            absolutely.
-	 * @return True iff the object moved successfully.
-	 */
-	public boolean move(int x, int y, boolean relative) {
+	
+	public boolean move(int x, int y, int fuzz, boolean relative) {
 		if (relative) {
 			x += coor_x;
 			y += coor_y;
 		}
 
-		//Check if the object is trying to leave the map.
+		// Check if the object is trying to leave the map.
 		if (x > 0) {
 			if (x > m.mapWmax) {
 				x = m.mapWmax;
@@ -148,7 +129,106 @@ public abstract class SimpleSolid extends SimpleObject {
 			y = 0;
 		}
 
-		//Calculate if the move is feasible.
+		// Calculate if the move is feasible.
+		m.calculateCollisions(x, y, this);
+		int step = 0;
+		if (collisions[0] == null){
+			step = 1;
+		}
+			if (collisions[0] == this && collisions[1] == null)) {
+
+			}
+			{
+			int pre_y = coor_y / m.cellHeight;
+			int new_y = y / m.cellHeight;
+
+			int relY = y / m.cellHeight - coor_y / m.cellWidth;
+
+			pre_cx = coor_x;
+			pre_cy = coor_y;
+			coor_x = x;
+			coor_y = y;
+
+			m.map[pre_y][pre_cx / m.cellWidth] = null;
+			m.map[new_y][coor_x / m.cellWidth] = this;
+
+			/*
+			 * Only if we've made a significant change in the y direction do we
+			 * need to do the complicated sorting part.
+			 */
+			if (relY == 0) {
+				return true;
+			} else {
+				// Remove from old position
+				drawNext.drawPrevious = drawPrevious;
+				drawPrevious.drawNext = drawNext;
+				// Insert into new position
+				drawPrevious = m.mapArray[new_y].drawPrevious;
+				drawNext = m.mapArray[new_y];
+				drawPrevious.drawNext = this;
+				drawNext.drawPrevious = this;
+				return true;
+			}
+		} else { /* Notify all objects in the collision list. */
+			for (SimpleSolid S : collisions) {
+				if (S != null) {
+					if (S != this) {
+						S.collision(this);
+						collision(S);
+					}
+				} else {
+					break;
+				}
+			}
+		}
+
+		return false;
+	}
+
+
+	
+	/**
+	 * The method for moving a SimpleSolid.
+	 * 
+	 * Similar to {@link SimpleObject#move(int, int, boolean)}, with the
+	 * exception that it does not allow movements that overlap with another
+	 * SimpleSolid's space. Furthermore, as of version 1.0 it does not attempt
+	 * to move at all if encountering an overlap (TODO). The solids resort
+	 * themselves when the y-axis has changed rows in the map.
+	 * 
+	 * @param x
+	 *            The new x-coordinate.
+	 * @param y
+	 *            The new y-coordinate.
+	 * @param relative
+	 *            True to move relative from your position, else move
+	 *            absolutely.
+	 * @return True iff the object moved successfully.
+	 */
+	public boolean move(int x, int y, boolean relative) {
+		if (relative) {
+			x += coor_x;
+			y += coor_y;
+		}
+
+		// Check if the object is trying to leave the map.
+		if (x > 0) {
+			if (x > m.mapWmax) {
+				x = m.mapWmax;
+			}
+		} else {
+			x = 0;
+		}
+
+		if (y > 0) {
+			if (y > m.mapHmax) {
+				y = m.mapHmax;
+			}
+		} else {
+			y = 0;
+		}
+
+		// Calculate if the move is feasible.
 		m.calculateCollisions(x, y, this);
 		if (collisions[0] == null
 				|| (collisions[0] == this && collisions[1] == null)) {
@@ -196,6 +276,81 @@ public abstract class SimpleSolid extends SimpleObject {
 			}
 		}
 
+		return false;
+	}
+
+	private boolean noCollision(int x, int y) {
+		x += coor_x;
+		y += coor_y;
+		if (x > 0) {
+			if (x > m.mapWmax) {
+				x = m.mapWmax;
+			}
+		} else {
+			x = 0;
+		}
+
+		if (y > 0) {
+			if (y > m.mapHmax) {
+				y = m.mapHmax;
+			}
+		} else {
+			y = 0;
+		}
+
+		// Calculate if the move is feasible.
+		m.calculateCollisions(x, y, this);
+		if (collisions[0] == null
+				|| (collisions[0] == this && collisions[1] == null)) {
+
+			int pre_y = coor_y / m.cellHeight;
+			int new_y = y / m.cellHeight;
+
+			int relY = y / m.cellHeight - coor_y / m.cellWidth;
+
+			pre_cx = coor_x;
+			pre_cy = coor_y;
+			coor_x = x;
+			coor_y = y;
+
+			m.map[pre_y][pre_cx / m.cellWidth] = null;
+			m.map[new_y][coor_x / m.cellWidth] = this;
+
+			/*
+			 * Only if we've made a significant change in the y direction do we
+			 * need to do the complicated sorting part.
+			 */
+			if (relY == 0) {
+				return true;
+			} else {
+				// Remove from old position
+				drawNext.drawPrevious = drawPrevious;
+				drawPrevious.drawNext = drawNext;
+				// Insert into new position
+				drawPrevious = m.mapArray[new_y].drawPrevious;
+				drawNext = m.mapArray[new_y];
+				drawPrevious.drawNext = this;
+				drawNext.drawPrevious = this;
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public boolean fuzzMove(int fuzz, SimpleObject o) {
+		int dx = o.coor_x - coor_x;
+		if (dx > m.cellWidth / 2 && dx < m.cellWidth) {
+			return noCollision(-fuzz, 0);
+		} else if (-dx > m.cellWidth / 2 && -dx < m.cellWidth) {
+			return noCollision(fuzz, 0);
+		}
+
+		int dy = o.coor_y - coor_y;
+		if (dy > m.cellHeight / 2 && dy < m.cellHeight) {
+			return noCollision(0, -fuzz);
+		} else if (-dy > m.cellHeight / 2 && -dy < m.cellHeight) {
+			return noCollision(0, fuzz);
+		}
 		return false;
 	}
 
