@@ -47,7 +47,7 @@ public abstract class SimpleObject {
 	SimpleObject updateNext = null;
 
 	// Optimization options for limited functionality.
-	public static final int NO_UPDATES_NO_COLLIDES = 0, NO_UPDATES = 1,
+	public static final int NO_UPDATES_NO_COLLIDES = 0,
 			NO_COLLIDES = 2, NORMAL = 3;
 
 	// By default use the null image.
@@ -139,7 +139,7 @@ public abstract class SimpleObject {
 	 * NO_COLLIDES.
 	 * 
 	 * @param optimization
-	 *            NO_UPDATES_NO_COLLIDES, NO_UPDATES, NO_COLLIDES, or NORMAL
+	 *            NO_UPDATES_NO_COLLIDES, SOLID, NO_COLLIDES, or NORMAL
 	 */
 	public SimpleObject(int optimization) {
 		this.updates = optimization;
@@ -389,7 +389,6 @@ public abstract class SimpleObject {
 			m = null;
 			drawNext.drawPrevious = drawPrevious;
 			drawPrevious.drawNext = drawNext;
-			this.updates=NO_UPDATES_NO_COLLIDES;
 			return true;
 		}
 		return false;
