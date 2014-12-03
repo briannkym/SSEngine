@@ -30,7 +30,7 @@ package sprite;
  * checking whether an object has an image or not.
  * @author Brian Nakayama
  */
-public class NullImg implements Img{
+public class NullImg extends Img{
 
     private static NullImg n = new NullImg();
     
@@ -50,18 +50,6 @@ public class NullImg implements Img{
     @Override
     public void drawSlide(int x, int y)
     {
-    }
-
-    @Override
-    public void setSlide(int i)
-    {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public void setListener(ImgListener iL)
-    {
-        throw new UnsupportedOperationException("Not supported yet.");
     }
 
 	@Override

@@ -33,36 +33,55 @@ package sprite;
  * @version 1.2 Now all code is abstracted as MVC.
  * @since 1.0
  */
-public interface Img
+public abstract class Img
 {
+
+	protected ImgListener iL = NullListener.getInstance();
 	/**
 	 * Returns the current slide of the image.
 	 * @param x The x position of the upper left corner
 	 * @param y The y position of the upper left corner
 	 */
-    public void drawSlide(int x, int y);
+    public abstract void drawSlide(int x, int y);
 	
     /**
      * Return the width of the image
      * @return The width
      */
-    public int getWidth();
+    public abstract int getWidth();
     
     /**
      * Return the height of the image
      * @return The height
      */
-    public int getHeight();
+    public abstract int getHeight();
     
-    /**
-	 * Sets the internal index of the image.
-	 * Only supported in animations.
-	 */
-    public void setSlide(int i);
-
     /**
 	 * Sets a listener for the end of an animation.
 	 * Only supported in animations.
 	 */
-    public void setListener(ImgListener iL);
+    public void setListener(ImgListener iL){
+    	if(iL==null){
+    		this.iL = NullListener.getInstance();
+    	} else {
+        	this.iL = iL;
+    	}
+    }
+    
+    /**
+     * A version of the command pattern. 
+     * @param iC
+     */
+    public void accept(ImgCommand iC){
+    	iC.accept(this);
+    }
+
+    //Gets the pixel at x, y
+    public int[] getPixel(int x, int y);
+    
+    //Sets the pixel at x, y
+    public void setPixel(int x, int y, int[] val);
+    
+    //Checks for transparency
+    public boolean checkForCol(int[] val);
 }

@@ -35,8 +35,6 @@ import java.awt.image.BufferedImage;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import control.DesktopControl;
-
 /**
  * Holds all of the code intended for a desktop view ala Java 1.7. Should be
  * used only when images from the parent package are being used.
@@ -200,7 +198,6 @@ public class DesktopCanvas extends JFrame implements IDesktopCanvas {
 
 	@Override
 	public void register() {
-		DesktopControl.getInstance().setCanvas(this);
 	}
 
 	@Override

@@ -1,10 +1,10 @@
 package control;
 
 import sprite.ImgCanvas;
-import sprite.ImgUpload;
+import sprite.Img;
 
 public interface DeviceControl {
 	public boolean setCanvas(ImgCanvas canvas);
 	public ImgCanvas getCanvas();
-	public ImgUpload getImgUpload();
+	public Img getImg(String s);
 }

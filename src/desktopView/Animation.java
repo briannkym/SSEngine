@@ -26,16 +26,17 @@ import java.awt.image.BufferedImage;
 
 import control.DesktopControl;
 
+import sprite.Anm;
 import sprite.Img;
-import sprite.ImgListener;
 import sprite.NullListener;
+import sprite.ImgListener;
 
 /**
  * Stores an animation that updates upon returning a slide.
  * 
  * @author Brian Nakayama
  */
-public class Animation implements Img {
+public class Animation extends Anm {
 
 	public boolean cycle = true;
 	private BufferedImage[] bI;
@@ -86,25 +87,33 @@ public class Animation implements Img {
 		this.i = i;
 	}
 
-	/**
-	 * Set an Image Listener.
-	 * 
-	 * @see ImgListener
-	 */
-	public void setListener(ImgListener iL) {
-		this.iL = iL;
-	}
-
 	@Override
 	public int getWidth() {
-		// TODO Auto-generated method stub
-		return 0;
+		return bI[0].getWidth();
 	}
 
 	@Override
 	public int getHeight() {
-		// TODO Auto-generated method stub
-		return 0;
+		return bI[0].getHeight();
+	}
+
+	@Override
+	public void animate(boolean animate) {
+		cycle = animate;
+	}
+
+	@Override
+	public Img getSlide(int i) {
+		return new Sprite(bI[i]);
+	}
+
+	@Override
+	public Anm getClone(int... i) {
+		BufferedImage[] nbI = new BufferedImage[i.length];
+		for(int j = 0; j < nbI.length; j++){
+			nbI[j] = bI[i[j]];
+		}
+		return new Animation(nbI);
 	}
 
 	

@@ -22,8 +22,10 @@ THE SOFTWARE.
  */
 package control;
 
+import java.io.File;
+
 import sprite.ImgCanvas;
-import sprite.ImgUpload;
+import sprite.Img;
 import desktopView.DesktopCanvas;
 import desktopView.DesktopImgUpload;
 
@@ -47,7 +49,7 @@ public class DesktopControl implements DeviceControl{
 	}
 
 	public boolean setCanvas(ImgCanvas canvas) {
-		if(canvas.getClass().isInstance(this.canvas)){
+		if(canvas instanceof DesktopCanvas){
 			this.canvas = (DesktopCanvas)canvas;
 			return true;
 		}
@@ -59,10 +61,9 @@ public class DesktopControl implements DeviceControl{
 	}
 
 	@Override
-	public ImgUpload getImgUpload() {
-		
-	//	return DesktopImgUpload.getInstance(f);
-		return null;
+	public Img getImg(String s) {
+		File f = new File(s);
+		return DesktopImgUpload.getInstance(f.getParentFile()).getImg(f.getName());
 	}
 	
 	

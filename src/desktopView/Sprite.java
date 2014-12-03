@@ -27,13 +27,12 @@ import java.awt.image.BufferedImage;
 import control.DesktopControl;
 
 import sprite.Img;
-import sprite.ImgListener;
 
 /**
  * The basic image. Holds a buffered image.
  * @author Brian Nakayama
  */
-public class Sprite implements Img{
+public class Sprite extends Img{
 
     private BufferedImage bI;
     private DesktopControl dc = DesktopControl.getInstance();
@@ -46,23 +45,14 @@ public class Sprite implements Img{
     {
         this.bI=bI;
     }
-
-    public void setSlide(int i)
-    {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    public void setListener(ImgListener iL)
-    {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
+    
     /**
 	 * Draws the colored image using {@link DesktopCanvas}
 	 */
 	@Override
 	public void drawSlide(int x, int y) {
 		dc.getCanvas().drawImage(bI, x, y);
+		iL.slideEnd();
 	}
 
 	@Override
