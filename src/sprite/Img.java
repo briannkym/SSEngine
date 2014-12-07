@@ -76,12 +76,13 @@ public abstract class Img
     	iC.accept(this);
     }
 
+    //TODO work with this with Chris.
     //Gets the pixel at x, y
-    public int[] getPixel(int x, int y);
+    public abstract int[] getPixel(int x, int y);
     
     //Sets the pixel at x, y
-    public void setPixel(int x, int y, int[] val);
+    public abstract void setPixel(int x, int y, int[] val);
     
     //Checks for transparency
-    public boolean checkForCol(int[] val);
+    public abstract boolean checkForCol(int[] val);
 }

@@ -105,88 +105,6 @@ public abstract class SimpleSolid extends SimpleObject {
 		return false;
 	}
 
-	
-	public boolean move(int x, int y, int fuzz, boolean relative) {
-		if (relative) {
-			x += coor_x;
-			y += coor_y;
-		}
-
-		// Check if the object is trying to leave the map.
-		if (x > 0) {
-			if (x > m.mapWmax) {
-				x = m.mapWmax;
-			}
-		} else {
-			x = 0;
-		}
-
-		if (y > 0) {
-			if (y > m.mapHmax) {
-				y = m.mapHmax;
-			}
-		} else {
-			y = 0;
-		}
-
-		// Calculate if the move is feasible.
-		m.calculateCollisions(x, y, this);
-		int step = 0;
-		if (collisions[0] == null){
-			step = 1;
-		}
-			if (collisions[0] == this && collisions[1] == null)) {
-
-			}
-			{
-			int pre_y = coor_y / m.cellHeight;
-			int new_y = y / m.cellHeight;
-
-			int relY = y / m.cellHeight - coor_y / m.cellWidth;
-
-			pre_cx = coor_x;
-			pre_cy = coor_y;
-			coor_x = x;
-			coor_y = y;
-
-			m.map[pre_y][pre_cx / m.cellWidth] = null;
-			m.map[new_y][coor_x / m.cellWidth] = this;
-
-			/*
-			 * Only if we've made a significant change in the y direction do we
-			 * need to do the complicated sorting part.
-			 */
-			if (relY == 0) {
-				return true;
-			} else {
-				// Remove from old position
-				drawNext.drawPrevious = drawPrevious;
-				drawPrevious.drawNext = drawNext;
-				// Insert into new position
-				drawPrevious = m.mapArray[new_y].drawPrevious;
-				drawNext = m.mapArray[new_y];
-				drawPrevious.drawNext = this;
-				drawNext.drawPrevious = this;
-				return true;
-			}
-		} else { /* Notify all objects in the collision list. */
-			for (SimpleSolid S : collisions) {
-				if (S != null) {
-					if (S != this) {
-						S.collision(this);
-						collision(S);
-					}
-				} else {
-					break;
-				}
-			}
-		}
-
-		return false;
-	}
-
-
-	
 	/**
 	 * The method for moving a SimpleSolid.
 	 * 
@@ -206,6 +124,36 @@ public abstract class SimpleSolid extends SimpleObject {
 	 * @return True iff the object moved successfully.
 	 */
 	public boolean move(int x, int y, boolean relative) {
+		return move(x, y, relative, 0);
+	}
+
+	/**
+	 * The method for moving a solid, that will attempt to move when colliding
+	 * on a corner.
+	 * 
+	 * Identical to {@link SimpleSolid#move(int, int, boolean)}, except if
+	 * there's a collision with only one object this method will move the object
+	 * by the given fuzz amount in a favorable alignment so that this object is
+	 * better situated to move when move is called again. Specifically, if we
+	 * collide within cellWidth / 2 or cellHeight / 2 of a corner we move the
+	 * object fuzz pixels towards the tip of the corner. This method always
+	 * moves the object relative from its current position, and is not intended
+	 * for large leaps.
+	 * 
+	 * @param x
+	 *            The new x-coordinate.
+	 * @param y
+	 *            The new y-coordinate.
+	 * @param fuzz
+	 *            The alternative amount to move either NS or EW if there's a
+	 *            collision.
+	 * @return True iff the intended move was made or the fuzz move.
+	 */
+	public boolean move(int x, int y, int fuzz) {
+		return move(x, y, true, fuzz);
+	}
+
+	private boolean move(int x, int y, boolean relative, int fuzz) {
 		if (relative) {
 			x += coor_x;
 			y += coor_y;
@@ -230,8 +178,9 @@ public abstract class SimpleSolid extends SimpleObject {
 
 		// Calculate if the move is feasible.
 		m.calculateCollisions(x, y, this);
-		if (collisions[0] == null
-				|| (collisions[0] == this && collisions[1] == null)) {
+		boolean isMe = (collisions[0] == this);
+
+		if (collisions[0] == null || (isMe && collisions[1] == null)) {
 
 			int pre_y = coor_y / m.cellHeight;
 			int new_y = y / m.cellHeight;
@@ -264,93 +213,49 @@ public abstract class SimpleSolid extends SimpleObject {
 				return true;
 			}
 		} else { /* Notify all objects in the collision list. */
-			for (SimpleSolid S : collisions) {
-				if (S != null) {
-					if (S != this) {
-						S.collision(this);
-						collision(S);
+			switch (fuzz) {
+			default:
+				if (collisions[2] == null) {
+					System.out.println(collisions[0].getClass().getName());
+					final int dx;
+					final int dy;
+					if (isMe) {
+						dx = collisions[1].coor_x - collisions[0].coor_x;
+						dy = collisions[1].coor_y - collisions[0].coor_y;
+					} else {
+						dx = collisions[0].coor_x - collisions[1].coor_x;
+						dy = collisions[0].coor_y - collisions[1].coor_y;
 					}
-				} else {
-					break;
+
+					if (dx > m.cellWidth / 2 && dx < m.cellWidth) {
+						return move(-fuzz, 0, true, 0);
+					} else if (-dx > m.cellWidth / 2 && -dx < m.cellWidth) {
+						return move(fuzz, 0, true, 0);
+					}
+
+					if (dy > m.cellHeight / 2 && dy < m.cellHeight) {
+						return move(0, -fuzz, true, 0);
+					} else if (-dy > m.cellHeight / 2 && -dy < m.cellHeight) {
+						return move(0, fuzz, true, 0);
+					}
 				}
+				/* no break */
+			case 0:
+				for (SimpleSolid S : collisions) {
+					if (S != null) {
+						if (S != this) {
+							S.collision(this);
+							collision(S);
+						}
+					} else {
+						break;
+					}
+				}
+				break;
 			}
+
 		}
 
-		return false;
-	}
-
-	private boolean noCollision(int x, int y) {
-		x += coor_x;
-		y += coor_y;
-		if (x > 0) {
-			if (x > m.mapWmax) {
-				x = m.mapWmax;
-			}
-		} else {
-			x = 0;
-		}
-
-		if (y > 0) {
-			if (y > m.mapHmax) {
-				y = m.mapHmax;
-			}
-		} else {
-			y = 0;
-		}
-
-		// Calculate if the move is feasible.
-		m.calculateCollisions(x, y, this);
-		if (collisions[0] == null
-				|| (collisions[0] == this && collisions[1] == null)) {
-
-			int pre_y = coor_y / m.cellHeight;
-			int new_y = y / m.cellHeight;
-
-			int relY = y / m.cellHeight - coor_y / m.cellWidth;
-
-			pre_cx = coor_x;
-			pre_cy = coor_y;
-			coor_x = x;
-			coor_y = y;
-
-			m.map[pre_y][pre_cx / m.cellWidth] = null;
-			m.map[new_y][coor_x / m.cellWidth] = this;
-
-			/*
-			 * Only if we've made a significant change in the y direction do we
-			 * need to do the complicated sorting part.
-			 */
-			if (relY == 0) {
-				return true;
-			} else {
-				// Remove from old position
-				drawNext.drawPrevious = drawPrevious;
-				drawPrevious.drawNext = drawNext;
-				// Insert into new position
-				drawPrevious = m.mapArray[new_y].drawPrevious;
-				drawNext = m.mapArray[new_y];
-				drawPrevious.drawNext = this;
-				drawNext.drawPrevious = this;
-				return true;
-			}
-		}
-		return false;
-	}
-
-	public boolean fuzzMove(int fuzz, SimpleObject o) {
-		int dx = o.coor_x - coor_x;
-		if (dx > m.cellWidth / 2 && dx < m.cellWidth) {
-			return noCollision(-fuzz, 0);
-		} else if (-dx > m.cellWidth / 2 && -dx < m.cellWidth) {
-			return noCollision(fuzz, 0);
-		}
-
-		int dy = o.coor_y - coor_y;
-		if (dy > m.cellHeight / 2 && dy < m.cellHeight) {
-			return noCollision(0, -fuzz);
-		} else if (-dy > m.cellHeight / 2 && -dy < m.cellHeight) {
-			return noCollision(0, fuzz);
-		}
 		return false;
 	}
 

@@ -65,4 +65,22 @@ public class Sprite extends Img{
 		return bI.getHeight();
 	}
 
+	@Override
+	public int[] getPixel(int x, int y) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void setPixel(int x, int y, int[] val) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public boolean checkForCol(int[] val) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
 }

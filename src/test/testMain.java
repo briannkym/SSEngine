@@ -29,6 +29,6 @@ public class testMain {
 		//End of new code.
 		SimpleWorld w = new SimpleWorld(m, dv);
 		w.setCameraStalk(cam);
-		w.start(false);
+		w.start(true);
 	}
 }

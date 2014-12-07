@@ -1,6 +1,6 @@
 package sprite;
 
-abstract class ImgDecorator<I extends Img> implements Img
+abstract class ImgDecorator<I extends Img> extends Img
 {
 	private I img;
 	
