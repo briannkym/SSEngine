@@ -23,7 +23,7 @@ THE SOFTWARE.
 
 package dialog;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 
 /**
  * Node data structure for implementing dialog graphs.
@@ -32,13 +32,13 @@ import java.util.HashMap;
  * @version 1.0
  */
 
-//TODO do top dialog
+//TODO Should I check every variable for every conceivable error?
+//TODO Finish class javadoc.
 public class DialogNode {
 	private String text;
 	private DialogNode[] children;
-	private HashMap<Integer, Double[]> probSets;
+	private ArrayList<double[]> probSets;
 	private boolean isNPC;
-	private double x, y;
 	
 	/**
 	 * Constructs and initializes a DialogNode.
@@ -52,58 +52,66 @@ public class DialogNode {
 	 * @param probSets
 	 *            Map of probabilities the NPC uses to select a response
 	 *            There may be multiple arrays corresponding to different strategies.
-	 *            Map key is the strategy, array index is child.
-	 *            Each array should sum to 1 and should be of same length as children.
+	 *            Array index is the strategy number.
+	 *            Each array should sum to 1.0 and should be of same length as children.
 	 *            Each probability set is also described as this node's row of the discrete time Markov chain's transition matrix, 
 	 *            the part of which is nonzero for all strategies.
-	 *            An empty map indicates no probability set. Do not use a null object.  
+	 *            An empty array indicates no probability set. Do not use a null object.  
 	 * @param children
 	 *            Array of children nodes
 	 *            If children is empty this is an end node.
-	 * @param x
-	 * 			  Node's horizontal position in a graphical editor application
-	 * @param y
-	 * 			  Node's vertical position in a graphical editor application
-	 * @throws IllegalArgumentException
-	 * 			  if there is no text
-	 * @throws IllegalArgumentException
-	 * 			  if node is player controlled and does not contain the default strategy (key = 0) probability set
-	 * @throws IllegalArgumentException
-	 * 			  if node is player controlled and does not contain a probability set
-	 * @throws IllegalArgumentException
-	 * 			  if each probability set does not sum to 1.0
 	 */		
-	public DialogNode(boolean isNPC, String text, HashMap<Integer, Double[]> probSets ,DialogNode[] children, double x, double y) { 
-		if (text == null)
-			throw new IllegalArgumentException("Nodes must have text.");
-		this.text = text;
-		if (children.length > 0 && probSets.size() == 0 && !isNPC)
-			throw new IllegalArgumentException("Player-controlled node '" + text + "' has children and therefore must have at least one probability set");
-		checkProbSets(probSets);
+	//TODO should @thows also be here in addition to in the check methods?
+	public DialogNode(boolean isNPC, String text, ArrayList<double[]> probSets ,DialogNode[] children) { 
+		//Checking for valid inputs.
+		checkText(text);
+		checkProbSets(children, probSets, isNPC);
 		
+		this.text = text;
 		this.children = children;
 		this.isNPC = isNPC;
 		this.probSets = probSets;
-		this.x = x;
-		this.y = y;
 	}
 	
 	/**
-	 * If probability set is not empty, checks for default (0) set.
-	 * Also makes sure each set sums to 1.0.
+	 * Checks for null text.
 	 * 
-	 * @param probSets probability sets to be checked
+	 * @param text node text to be checked
+	 * @throws NullPointerException if text is null
 	 */
-	private void checkProbSets(HashMap<Integer, Double[]> probSets) {
-		if (!probSets.containsKey(0) && probSets.size() > 0)
-			throw new IllegalArgumentException("Node '" + text + "' has a probability set but does not have a probability set for the default (0) strategy.");
-		for (int strategy : probSets.keySet()) {
+	static void checkText(String text) {
+		if (text == null)
+			throw new NullPointerException("Null text is not allowed.");
+	}
+	
+	/**
+	 * Checks the validity of probability sets.
+	 * 
+	 * @param children children of node
+	 * @param probSets probability sets of node
+	 * @param isNPC NPC status of node
+	 * @throws IllegalArgumentException if probability sets don't sum to 1.0
+	 * @throws IllegalArgumentException if problem set lengths don't equal children length
+	 * @throws IllegalArgumentException if node doesn't have a probability set but is player-controlled and has children 
+	 */
+	static void checkProbSets(DialogNode[] children, ArrayList<double[]> probSets, boolean isNPC) {
+		//Checks that each probability set sums to 1.0.
+		for (int strategy = 0; strategy < probSets.size(); strategy++) {
 			double sum = 0.0;
 			for (double value : probSets.get(strategy))
 				sum += value;
 			if (sum > 1.01 || sum < 0.99)
-				throw new IllegalArgumentException("Probability set (strategy " + Integer.toString(strategy) + ") of node '" + text + "' must sum to 1.0.");
+				throw new IllegalArgumentException("probSet " + Integer.toString(strategy) + " does not sum to 1.0.");
 		}
+		
+		//Checks that player-controlled nodes with children have probSets.
+		if (children.length > 0 && probSets.size() == 0 && !isNPC)
+			throw new IllegalArgumentException("is player-controlled and has children and therefore must have at least one probability set");
+		
+		//Checks that probSet lengths match children length.
+		for (int strategy = 0; strategy < probSets.size(); strategy++)
+			if (probSets.get(strategy).length != children.length)
+				throw new IllegalArgumentException("probSet length of strategy " + Integer.toString(strategy) + " does not match children length");
 	}
 	
 	/**
@@ -138,26 +146,8 @@ public class DialogNode {
 	 * 
 	 * @return probability set(s) for this node
 	 */	
-	public HashMap<Integer, Double[]> getProbSets() {
+	public ArrayList<double[]> getProbSets() {
 		return probSets;
-	}
-	
-	/**
-	 * Gets horizontal position of node in a graphical editor application.
-	 * 
-	 * @return horizontal position
-	 */
-	public double getX() {
-		return x;
-	}
-	
-	/**
-	 * Gets vertical position of node in a graphical editor application.
-	 * 
-	 * @return vertical position
-	 */
-	public double getY() {
-		return y;
 	}
 	
 	/**
@@ -166,8 +156,7 @@ public class DialogNode {
 	 * @param text text of this node
 	 */
 	void setText(String text) {
-		if (text == null)
-			throw new IllegalArgumentException("Node '" + this.text + "' must have text.");
+		checkText(text);
 		this.text = text;
 	}
 	
@@ -175,10 +164,8 @@ public class DialogNode {
 	 * Sets this node's probability set(s).
 	 * 
 	 * @param probSets probability set(s) for this node
-	 * @throws IllegalArgumentException if each probability set does not sum to 1.0.
 	 */	
-	public void setProbSets(HashMap<Integer, Double[]> probSets) {
-		checkProbSets(probSets);		
+	public void setProbSets(ArrayList<double[]> probSets) {
 		this.probSets = probSets;
 	}
 	
@@ -203,23 +190,5 @@ public class DialogNode {
 	 */
 	public void setChildren(DialogNode[] children) {
 		this.children = children;
-	}
-	
-	/**
-	 * Sets horizontal position of node in a graphical editor application.
-	 * 
-	 * @param x horizontal position
-	 */
-	public void setX(double x) {
-		this.x = x;
-	}
-	
-	/**
-	 * Sets vertical position of node in a graphical editor application.
-	 * 
-	 * @param y vertical position
-	 */
-	public void setY(double y) {
-		this.y = y;
 	}
 }
