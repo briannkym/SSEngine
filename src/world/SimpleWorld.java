@@ -250,4 +250,18 @@ public class SimpleWorld implements Cinterface {
 		swo.update();
 		dv.getCanvas().paint();
 	}
+	
+	/**
+	 * Disables updating of objects in world.
+	 */
+	public void disableUpdate() {
+		update = false;
+	}
+	
+	/**
+	 * Enables updating of objects in world.
+	 */
+	public void enableUpdate() {
+		update = true;
+	}
 }
