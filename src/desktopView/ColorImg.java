@@ -32,7 +32,7 @@ import sprite.ImgListener;
 /**
  * Stores a width x height square with a 32 bit ARGB value.
  * 
- * @author Brian
+ * @author Brian Nakayama
  */
 public class ColorImg implements Img {
 
