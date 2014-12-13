@@ -22,6 +22,8 @@ THE SOFTWARE.
  */
 package sprite;
 
+import java.awt.Container;
+
 /**
 *
 * A canvas is what is painted to the screen and generally
@@ -42,4 +44,5 @@ public interface ImgCanvas {
 	public void fullScreen();
 	public void windowScreen();
 	public void register();
+	public Container getContentPane();
 }
