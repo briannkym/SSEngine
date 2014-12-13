@@ -216,7 +216,6 @@ public abstract class SimpleSolid extends SimpleObject {
 			switch (fuzz) {
 			default:
 				if (collisions[2] == null) {
-					System.out.println(collisions[0].getClass().getName());
 					final int dx;
 					final int dy;
 					if (isMe) {

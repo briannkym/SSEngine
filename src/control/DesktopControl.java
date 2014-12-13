@@ -28,6 +28,7 @@ import sprite.ImgCanvas;
 import sprite.Img;
 import desktopView.DesktopCanvas;
 import desktopView.DesktopImgUpload;
+import desktopView.IDesktopCanvas;
 
 /**
  * Not intended for direct use by user. This is simple a linker class
@@ -49,7 +50,7 @@ public class DesktopControl implements DeviceControl{
 	}
 
 	public boolean setCanvas(ImgCanvas canvas) {
-		if(canvas instanceof DesktopCanvas){
+		if(canvas instanceof IDesktopCanvas){
 			this.canvas = (DesktopCanvas)canvas;
 			return true;
 		}

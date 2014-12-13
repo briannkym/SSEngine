@@ -87,7 +87,17 @@ public class DesktopCanvas extends JFrame implements IDesktopCanvas {
 		this.setResizable(false);
 		this.setVisible(true);
 	}
-
+	
+	@Override
+	public int getWidth(){
+		return getContentPane().getWidth();
+	}
+	
+	@Override
+	public int getHeight(){
+		return getContentPane().getHeight();
+	}
+	
 	/**
 	 * Using a command pattern, sets up a full screen.
 	 */
