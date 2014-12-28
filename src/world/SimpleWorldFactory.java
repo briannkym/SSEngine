@@ -40,7 +40,9 @@ public class SimpleWorldFactory {
 	Map<Integer, SimpleObject> objects = new HashMap<Integer, SimpleObject>();
 
 	/**
-	 * Registers a SimpleObject using the integer returned by getID.
+	 * Registers a SimpleObject using the integer returned by getID. Duplicate
+	 * ID's are not allowed. To ensure that all ID's are unique see
+	 * {@link SimpleObject#generateID()}
 	 * 
 	 * @param o
 	 *            The SimpleObject to add.

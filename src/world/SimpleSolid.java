@@ -31,7 +31,8 @@ import sprite.Img;
  * y-index on the screen.
  * 
  * @author Brian Nakayama
- * @version 1.2 Now all code is abstracted as MVC.
+ * @version 1.3 Fuzz movement was created.
+ * @since 1.2 Now all code is abstracted as MVC.
  * @since 1.1
  */
 public abstract class SimpleSolid extends SimpleObject {
@@ -111,7 +112,7 @@ public abstract class SimpleSolid extends SimpleObject {
 	 * Similar to {@link SimpleObject#move(int, int, boolean)}, with the
 	 * exception that it does not allow movements that overlap with another
 	 * SimpleSolid's space. Furthermore, as of version 1.0 it does not attempt
-	 * to move at all if encountering an overlap (TODO). The solids resort
+	 * to move at all if encountering an overlap. The solids resort
 	 * themselves when the y-axis has changed rows in the map.
 	 * 
 	 * @param x
@@ -129,7 +130,8 @@ public abstract class SimpleSolid extends SimpleObject {
 
 	/**
 	 * The method for moving a solid, that will attempt to move when colliding
-	 * on a corner.
+	 * on a corner (fuzz > 0) or will attempt to move as far along the direction
+	 * indicated (fuzz = -1).
 	 * 
 	 * Identical to {@link SimpleSolid#move(int, int, boolean)}, except if
 	 * there's a collision with only one object this method will move the object
@@ -138,7 +140,9 @@ public abstract class SimpleSolid extends SimpleObject {
 	 * collide within cellWidth / 2 or cellHeight / 2 of a corner we move the
 	 * object fuzz pixels towards the tip of the corner. This method always
 	 * moves the object relative from its current position, and is not intended
-	 * for large leaps.
+	 * for large leaps greater than the size of the map cells.
+	 * 
+	 * 
 	 * 
 	 * @param x
 	 *            The new x-coordinate.
@@ -212,10 +216,12 @@ public abstract class SimpleSolid extends SimpleObject {
 				drawNext.drawPrevious = this;
 				return true;
 			}
-		} else { /* Notify all objects in the collision list. */
+		} else {
 			switch (fuzz) {
 			default:
-				if (collisions[2] == null) {
+				// If the fuzz parameter is nonzero, and there is at most one
+				// collision.
+				if (collisions[2] == null && collisions[1] != null) {
 					final int dx;
 					final int dy;
 					if (isMe) {
@@ -227,19 +233,20 @@ public abstract class SimpleSolid extends SimpleObject {
 					}
 
 					if (dx > m.cellWidth / 2 && dx < m.cellWidth) {
-						return move(-fuzz, 0, true, 0);
+						return move(-fuzz, 0, true, -1);
 					} else if (-dx > m.cellWidth / 2 && -dx < m.cellWidth) {
-						return move(fuzz, 0, true, 0);
+						return move(fuzz, 0, true, -1);
 					}
 
 					if (dy > m.cellHeight / 2 && dy < m.cellHeight) {
-						return move(0, -fuzz, true, 0);
+						return move(0, -fuzz, true, -1);
 					} else if (-dy > m.cellHeight / 2 && -dy < m.cellHeight) {
-						return move(0, fuzz, true, 0);
+						return move(0, fuzz, true, -1);
 					}
 				}
 				/* no break */
 			case 0:
+				/* Notify all objects in the collision list. */
 				for (SimpleSolid S : collisions) {
 					if (S != null) {
 						if (S != this) {
@@ -251,6 +258,34 @@ public abstract class SimpleSolid extends SimpleObject {
 					}
 				}
 				break;
+			case -1:
+				/* Approximate move. Move as far along two vectors as possible. */
+				if (collisions[1] != null) {
+					final int dx1, dy1;
+					int dx2, dy2;
+					dx2 = x - coor_x;
+					dy2 = y - coor_y;
+
+					if (isMe) {
+						dx1 = collisions[1].coor_x - coor_x;
+						dy1 = collisions[1].coor_y - coor_y;
+					} else {
+						dx1 = collisions[0].coor_x - coor_x;
+						dy1 = collisions[0].coor_y - coor_y;
+					}
+
+					if (dx1 >= m.cellWidth || dx1 <= -m.cellWidth) {
+						dx2 = (x - coor_x > 0) ? dx1 - m.cellWidth : dx1
+								+ m.cellWidth;
+					}
+					if (dy1 >= m.cellHeight || dy1 <= -m.cellHeight) {
+						dy2 = (y - coor_y > 0) ? dy1 - m.cellHeight : dy1
+								+ m.cellHeight;
+					}
+
+					return move(dx2, dy2, true, 0);
+				}
+
 			}
 
 		}
@@ -302,6 +337,11 @@ public abstract class SimpleSolid extends SimpleObject {
 			x += coor_x;
 			y += coor_y;
 		}
+
+		if (x < 0 || x > m.mapWmax || y < 0 || y > m.mapHmax) {
+			return null;
+		}
+
 		return m.map[y / m.cellHeight][x / m.cellWidth];
 	}
 }

@@ -195,8 +195,8 @@ public class SimpleWorld implements Cinterface {
 
 		// Update camera coordinates based off of the width and height.
 		if (cameraStalk != null) {
-			int width = (int)dv.getCanvas().getContentPane().getSize().getWidth();
-			int height = (int)dv.getCanvas().getContentPane().getSize().getHeight();
+			int width = dv.getCanvas().getWidth();
+			int height = dv.getCanvas().getHeight();
 			
 			camera[0] = cameraStalk.coor_x - (width - m.cellWidth)
 					/ 2;
