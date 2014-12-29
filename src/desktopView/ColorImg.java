@@ -98,4 +98,9 @@ public class ColorImg extends Img {
 		return false;
 	}
 
+	@Override
+	public Img getRotatedInstance(int degree) {
+		return this;
+	}
+
 }

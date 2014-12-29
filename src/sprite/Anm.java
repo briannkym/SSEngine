@@ -68,7 +68,7 @@ public abstract class Anm extends Img{
      * @param iC
      */
     @Override
-    public void accept(ImgCommand iC){
+    public <T extends ImgCommand> void accept(T iC){
     	iC.accept(this);
     }
 }

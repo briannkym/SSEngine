@@ -22,6 +22,7 @@ THE SOFTWARE.
 */
 package desktopView;
 
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 
 import control.DesktopControl;
@@ -34,7 +35,7 @@ import sprite.Img;
  */
 public class Sprite extends Img{
 
-    private BufferedImage bI;
+    BufferedImage bI;
     private DesktopControl dc = DesktopControl.getInstance();
     
     /**
@@ -81,6 +82,18 @@ public class Sprite extends Img{
 	public boolean checkForCol(int[] val) {
 		// TODO Auto-generated method stub
 		return false;
+	}
+
+	@Override
+	public Img getRotatedInstance(int degree) {
+		BufferedImage bNew = new BufferedImage(bI.getColorModel(),
+						bI.copyData(bI.getRaster()
+								.createCompatibleWritableRaster()),
+						bI.isAlphaPremultiplied(), null);
+		Graphics2D g = bNew.createGraphics();
+		g.rotate((degree*Math.PI)/360.0, bNew.getWidth()/2, bNew.getHeight()/2);
+		g.dispose();
+		return new Sprite(bNew);
 	}
 
 }

@@ -22,6 +22,7 @@ THE SOFTWARE.
  */
 package desktopView;
 
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 
 import control.DesktopControl;
@@ -39,10 +40,10 @@ import sprite.ImgListener;
 public class Animation extends Anm {
 
 	public boolean cycle = true;
-	private BufferedImage[] bI;
+	BufferedImage[] bI;
 	private int i = 0;
 	private ImgListener iL = NullListener.getInstance();
-    private DesktopControl dc = DesktopControl.getInstance();
+	private DesktopControl dc = DesktopControl.getInstance();
 
 	/**
 	 * Initializes the animation with an array of bufferedImages.
@@ -69,7 +70,8 @@ public class Animation extends Anm {
 	@Override
 	public void drawSlide(int x, int y) {
 		BufferedImage rB = bI[i];
-		if(cycle){
+
+		if (cycle) {
 			if (i < bI.length - 1) {
 				i++;
 			} else {
@@ -77,6 +79,7 @@ public class Animation extends Anm {
 				i = 0;
 			}
 		}
+
 		dc.getCanvas().drawImage(rB, x, y);
 	}
 
@@ -110,7 +113,7 @@ public class Animation extends Anm {
 	@Override
 	public Anm getClone(int... i) {
 		BufferedImage[] nbI = new BufferedImage[i.length];
-		for(int j = 0; j < nbI.length; j++){
+		for (int j = 0; j < nbI.length; j++) {
 			nbI[j] = bI[i[j]];
 		}
 		return new Animation(nbI);
@@ -125,7 +128,7 @@ public class Animation extends Anm {
 	@Override
 	public void setPixel(int x, int y, int[] val) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
@@ -134,5 +137,20 @@ public class Animation extends Anm {
 		return false;
 	}
 
-	
+	@Override
+	public Img getRotatedInstance(int degree) {
+		BufferedImage[] bNew = new BufferedImage[bI.length];
+		for (int i = 0; i < bNew.length; i++) {
+			bNew[i] = new BufferedImage(bI[i].getColorModel(),
+					bI[i].copyData(bI[i].getRaster()
+							.createCompatibleWritableRaster()),
+					bI[i].isAlphaPremultiplied(), null);
+			Graphics2D g = bNew[i].createGraphics();
+			g.rotate((degree * Math.PI) / 360.0, bNew[i].getWidth() / 2,
+					bNew[i].getHeight() / 2);
+			g.dispose();
+		}
+
+		return new Animation(bNew);
+	}
 }

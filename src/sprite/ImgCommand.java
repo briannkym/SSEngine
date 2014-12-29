@@ -9,7 +9,6 @@ public interface ImgCommand {
 	 * @param i The image to manipulate
 	 */
 	public void accept(Img i);
-	
-
 	public void accept(Anm a);
+	
 }

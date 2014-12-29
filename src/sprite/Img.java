@@ -72,7 +72,7 @@ public abstract class Img
      * A version of the command pattern. 
      * @param iC
      */
-    public void accept(ImgCommand iC){
+    public <T extends ImgCommand> void accept(T iC){
     	iC.accept(this);
     }
 
@@ -85,4 +85,14 @@ public abstract class Img
     
     //Checks for transparency
     public abstract boolean checkForCol(int[] val);
+    
+    /**
+     * Creates a copy of the image rotated by the specified number of degrees.
+     * Instead of rotating an image on the fly this method can be used to pre-rotate
+     * images.
+     * @param degree The amount to rotate out of 360 degrees
+     * @return A rotated copy.
+     */
+    public abstract Img getRotatedInstance(int degree);
+    
 }

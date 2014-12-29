@@ -20,35 +20,29 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
  */
+
 package sprite;
 
-import java.io.File;
+public class Resume implements ImgCommand {
 
-public interface ImgUpload {
-
-	/**
-	 * Get an image file
-	 * 
-	 * @param fileName The file name, not including any directories or the full path.
-	 * @return The image if it exists.
-	 */
-	public Img getImg(String fileName);
+	private static Resume c = new Resume();
 	
-	/**
-	 * Get a rotated image file. This is the recommended way to rotate an image, as it
-	 * ensures that only one copy of the rotated image is created. Use this method instead of
-	 * {@link Img#getRotatedInstance(int)}.
-	 * 
-	 * @param fileName The file name, not including any directories or the full path.
-	 * @param degree The degree [0-360]
-	 * @return The image if it exists.
-	 */
-	public Img getRotatedImg(String fileName, int degree);
+	private Resume(){
+		
+	}
+	
+	public static Resume getInstance(){
+		return c;
+	}
+	
+	@Override
+	public void accept(Anm a) {
+		a.animate(true);
+	}
 
-	/**
-	 * Get the file used to construct this instance.
-	 * 
-	 * @return The directory
-	 */
-	public File getFile();
+	@Override
+	public void accept(Img i) {
+		// Do nothing.
+	}
+
 }

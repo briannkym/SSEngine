@@ -162,12 +162,8 @@ public class DesktopImgUpload implements ImgUpload{
 		return iu;
 	}
 
-	/**
-	 * Get an image file
-	 * 
-	 * @param fileName The file name, not including any directories or the full path.
-	 * @return The image if it exists.
-	 */
+	
+	@Override
 	public Img getImg(String fileName) {
 		Img i = img.get(fileName);
 		if (i == null) {
@@ -177,11 +173,24 @@ public class DesktopImgUpload implements ImgUpload{
 	}
 
 
-	/**
-	 * Get the file used to construct this instance.
-	 * 
-	 * @return The directory
-	 */
+	@Override
+	public Img getRotatedImg(String fileName, int degree) {
+		degree %= 360;
+		Img i = img.get(fileName + degree);
+		if (i == null) {
+			i = img.get(fileName);
+			if (i == null){
+				return NullImg.getInstance();
+			} else {
+				Img rotated = i.getRotatedInstance(degree);
+				img.put(fileName+degree, rotated);
+				return rotated;
+			}
+		}
+		return i;
+	}
+	
+	@Override
 	public File getFile() {
 		return f;
 	}
