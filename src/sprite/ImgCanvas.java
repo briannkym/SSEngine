@@ -44,5 +44,6 @@ public interface ImgCanvas {
 	public void fullScreen();
 	public void windowScreen();
 	public void register();
+	public void setRotation(int degrees);
 	public Container getContentPane();
 }

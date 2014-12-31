@@ -141,13 +141,11 @@ public class Animation extends Anm {
 	public Img getRotatedInstance(int degree) {
 		BufferedImage[] bNew = new BufferedImage[bI.length];
 		for (int i = 0; i < bNew.length; i++) {
-			bNew[i] = new BufferedImage(bI[i].getColorModel(),
-					bI[i].copyData(bI[i].getRaster()
-							.createCompatibleWritableRaster()),
-					bI[i].isAlphaPremultiplied(), null);
+			bNew[i] = new BufferedImage(bI[i].getWidth(),bI[i].getHeight(), BufferedImage.TYPE_INT_ARGB);
 			Graphics2D g = bNew[i].createGraphics();
-			g.rotate((degree * Math.PI) / 360.0, bNew[i].getWidth() / 2,
+			g.rotate((degree * 2 * Math.PI) / 360.0, bNew[i].getWidth() / 2,
 					bNew[i].getHeight() / 2);
+			g.drawImage(bI[i], 0, 0, null);
 			g.dispose();
 		}
 

@@ -112,8 +112,8 @@ public abstract class SimpleSolid extends SimpleObject {
 	 * Similar to {@link SimpleObject#move(int, int, boolean)}, with the
 	 * exception that it does not allow movements that overlap with another
 	 * SimpleSolid's space. Furthermore, as of version 1.0 it does not attempt
-	 * to move at all if encountering an overlap. The solids resort
-	 * themselves when the y-axis has changed rows in the map.
+	 * to move at all if encountering an overlap. The solids resort themselves
+	 * when the y-axis has changed rows in the map.
 	 * 
 	 * @param x
 	 *            The new x-coordinate.
@@ -145,16 +145,35 @@ public abstract class SimpleSolid extends SimpleObject {
 	 * 
 	 * 
 	 * @param x
-	 *            The new x-coordinate.
+	 *            The new relative x-coordinate.
 	 * @param y
-	 *            The new y-coordinate.
+	 *            The new relative y-coordinate.
 	 * @param fuzz
 	 *            The alternative amount to move either NS or EW if there's a
 	 *            collision.
 	 * @return True iff the intended move was made or the fuzz move.
 	 */
-	public boolean move(int x, int y, int fuzz) {
+	public boolean fuzzMove(int x, int y, int fuzz) {
 		return move(x, y, true, fuzz);
+	}
+
+	/**
+	 * The method for moving a solid, that will attempt to move as far along the
+	 * direction indicated (Same as {@link #fuzzMove(int, int, int)} where fuzz
+	 * = -1).
+	 * 
+	 * Specifically, it looks at the first object it has collided with (if a
+	 * collision occurs), and it then moves the maximum amount in both the x and
+	 * y directions without colliding.
+	 * 
+	 * @param x
+	 *            The new relative x-coordinate.
+	 * @param y
+	 *            The new relative y-coordinate.
+	 * @return True iff a normal move or the approximation move was made.
+	 */
+	public boolean approxMove(int x, int y) {
+		return move(x, y, true, -1);
 	}
 
 	private boolean move(int x, int y, boolean relative, int fuzz) {
@@ -233,15 +252,19 @@ public abstract class SimpleSolid extends SimpleObject {
 					}
 
 					if (dx > m.cellWidth / 2 && dx < m.cellWidth) {
-						return move(-fuzz, 0, true, -1);
+						return move(Math.max(dx - m.cellWidth, -fuzz), 0, true,
+								0);
 					} else if (-dx > m.cellWidth / 2 && -dx < m.cellWidth) {
-						return move(fuzz, 0, true, -1);
+						return move(Math.min(m.cellWidth + dx, fuzz), 0, true,
+								0);
 					}
 
 					if (dy > m.cellHeight / 2 && dy < m.cellHeight) {
-						return move(0, -fuzz, true, -1);
+						return move(0, Math.max(dy - m.cellHeight, -fuzz),
+								true, 0);
 					} else if (-dy > m.cellHeight / 2 && -dy < m.cellHeight) {
-						return move(0, fuzz, true, -1);
+						return move(0, Math.min(m.cellHeight + dy, fuzz), true,
+								0);
 					}
 				}
 				/* no break */

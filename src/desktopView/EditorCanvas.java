@@ -91,4 +91,10 @@ public class EditorCanvas extends JFrame implements IDesktopCanvas{
 		buffer.drawImage(bi, x, y, null);
 	}
 
+	@Override
+	public void setRotation(int degrees) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

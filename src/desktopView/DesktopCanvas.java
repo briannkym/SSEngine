@@ -28,9 +28,11 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.DisplayMode;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.Toolkit;
+import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -51,8 +53,9 @@ public class DesktopCanvas extends JFrame implements IDesktopCanvas {
 	private int width, height, x, y;
 	JPanel jp;
 	BufferedImage bi;
-	Graphics buffer;
+	Graphics2D buffer;
 	private Graphics g;
+	private int rotate = 0;
 
 	/**
 	 * This is one of the optional views for the game.
@@ -64,7 +67,7 @@ public class DesktopCanvas extends JFrame implements IDesktopCanvas {
 	public DesktopCanvas(int width, int height, String title) {
 		super(title);
 		this.bi = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-		buffer = bi.getGraphics();
+		buffer = bi.createGraphics();
 	}
 
 	/**
@@ -192,6 +195,13 @@ public class DesktopCanvas extends JFrame implements IDesktopCanvas {
 		try {
 			g = jp.getGraphics();
 			if ((g != null) && (bi != null)) {
+				if(rotate != 0){
+					AffineTransform at = new AffineTransform();
+					at.rotate(-(rotate * 2 * Math.PI)/360.0, bi.getWidth()/2, bi.getHeight()/2);
+					buffer.setTransform(at);
+				} else {
+					buffer.setTransform(new AffineTransform());
+				}
 				g.drawImage(bi, x, y, width, height, null);
 				Toolkit.getDefaultToolkit().sync();
 				g.dispose();
@@ -213,5 +223,10 @@ public class DesktopCanvas extends JFrame implements IDesktopCanvas {
 	@Override
 	public void drawImage(BufferedImage bi, int x, int y) {
 		buffer.drawImage(bi, x, y, null);		
+	}
+
+	@Override
+	public void setRotation(int degrees) {
+		this.rotate = degrees;
 	}
 }

@@ -19,7 +19,7 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
-*/
+ */
 package desktopView;
 
 import java.awt.Graphics2D;
@@ -31,23 +31,25 @@ import sprite.Img;
 
 /**
  * The basic image. Holds a buffered image.
+ * 
  * @author Brian Nakayama
  */
-public class Sprite extends Img{
+public class Sprite extends Img {
 
-    BufferedImage bI;
-    private DesktopControl dc = DesktopControl.getInstance();
-    
-    /**
-     * Creates a sprite with the specified buffered image.
-     * @param bI The buffered image to store.
-     */
-    public Sprite(BufferedImage bI)
-    {
-        this.bI=bI;
-    }
-    
-    /**
+	BufferedImage bI;
+	private DesktopControl dc = DesktopControl.getInstance();
+
+	/**
+	 * Creates a sprite with the specified buffered image.
+	 * 
+	 * @param bI
+	 *            The buffered image to store.
+	 */
+	public Sprite(BufferedImage bI) {
+		this.bI = bI;
+	}
+
+	/**
 	 * Draws the colored image using {@link DesktopCanvas}
 	 */
 	@Override
@@ -75,7 +77,7 @@ public class Sprite extends Img{
 	@Override
 	public void setPixel(int x, int y, int[] val) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
@@ -86,12 +88,12 @@ public class Sprite extends Img{
 
 	@Override
 	public Img getRotatedInstance(int degree) {
-		BufferedImage bNew = new BufferedImage(bI.getColorModel(),
-						bI.copyData(bI.getRaster()
-								.createCompatibleWritableRaster()),
-						bI.isAlphaPremultiplied(), null);
+		BufferedImage bNew = new BufferedImage(bI.getWidth(), bI.getHeight(),
+				BufferedImage.TYPE_INT_ARGB);
 		Graphics2D g = bNew.createGraphics();
-		g.rotate((degree*Math.PI)/360.0, bNew.getWidth()/2, bNew.getHeight()/2);
+		g.rotate((degree * 2 * Math.PI) / 360.0, bNew.getWidth() / 2,
+				bNew.getHeight() / 2);
+		g.drawImage(bI, 0, 0, null);
 		g.dispose();
 		return new Sprite(bNew);
 	}
