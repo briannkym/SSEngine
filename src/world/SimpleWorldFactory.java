@@ -22,7 +22,9 @@ THE SOFTWARE.
  */
 package world;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import sprite.Img;
@@ -37,7 +39,31 @@ import sprite.Img;
 public class SimpleWorldFactory {
 
 	// Hold each object along with an id key representing the object.
-	Map<Integer, SimpleObject> objects = new HashMap<Integer, SimpleObject>();
+	List<SimpleObject> objects = new ArrayList<SimpleObject>();
+
+	public SimpleWorldFactory() {
+
+	}
+
+	/**
+	 * Create a SimpleWorldFactory with pre-registered SimpleObjects. The string
+	 * should be generated using {@link #toString()}
+	 * 
+	 * @param s
+	 *            A String holding the canonical names of SimpleObjects
+	 *            separated by semicolons.
+	 */
+	public SimpleWorldFactory(String s) {
+		String[] classes = s.split(";");
+		for (String c : classes) {
+			try {
+				objects.add((SimpleObject) Class.forName(c).newInstance());
+			} catch (Exception e) {
+				System.out.println("Could not retrieve class: " + c);
+				e.printStackTrace();
+			}
+		}
+	}
 
 	/**
 	 * Registers a SimpleObject using the integer returned by getID. Duplicate
@@ -49,19 +75,9 @@ public class SimpleWorldFactory {
 	 * @see SimpleObject
 	 */
 	public void register(SimpleObject o) {
-		if (!objects.containsKey(o.id())) {
-			objects.put(o.id(), o);
+		if (!objects.contains(o)) {
+			objects.add(o);
 		}
-	}
-
-	/**
-	 * Use this method to get a list of keys for objects registered. Using these
-	 * keys, one can then (in theory) add objects using addSimpleObject.
-	 * 
-	 * @return An array of all keys corresponding to objects registered.
-	 */
-	public Integer[] getKeys() {
-		return objects.keySet().toArray(new Integer[1]);
 	}
 
 	/**
@@ -91,6 +107,31 @@ public class SimpleWorldFactory {
 	 */
 	public boolean addSimpleObject(int c, int x, int y, SimpleMap m) {
 		return addSimpleObject(c, x, y, "", m);
+	}
+
+	/**
+	 * Gets the list of SimpleObjects currently stored.
+	 * 
+	 * @return The list of SimpleObjects
+	 */
+	public List<SimpleObject> getList() {
+		return objects;
+	}
+
+	/**
+	 * Use this method to get a String containing all of the SimpleObjects
+	 * contained in this factory. Can be used to create an instance of
+	 * SimpleWorldFactory
+	 * 
+	 * @see #SimpleWorldFactory(String)
+	 */
+	@Override
+	public String toString() {
+		String s = "";
+		for (SimpleObject o : objects) {
+			s += o.getClass().getCanonicalName() + ";";
+		}
+		return s;
 	}
 
 	/**

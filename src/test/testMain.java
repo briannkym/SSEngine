@@ -4,6 +4,7 @@ import control.DesktopControl;
 import desktopView.DesktopCanvas;
 import world.SimpleMap;
 import world.SimpleWorld;
+import world.SimpleWorldFactory;
 
 public class testMain {
 	public static void main(String[] args) {
@@ -22,6 +23,13 @@ public class testMain {
 			}
 		}
 		
+		SimpleWorldFactory swf = new SimpleWorldFactory();
+		swf.register(new testColor());
+		swf.register(new testObject());
+		System.out.println(swf.toString());
+		swf = new SimpleWorldFactory(swf.toString());
+		System.out.println(swf.toString());
+		
 		//Note the new code below:
 		DesktopCanvas dc = new DesktopCanvas(800, 600, "Test");
 		DesktopControl dv = DesktopControl.getInstance();
@@ -29,6 +37,6 @@ public class testMain {
 		//End of new code.
 		SimpleWorld w = new SimpleWorld(m, dv);
 		w.setCameraStalk(cam);
-		w.start(true);
+		//w.start(true);
 	}
 }
