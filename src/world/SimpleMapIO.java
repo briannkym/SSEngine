@@ -129,7 +129,7 @@ public class SimpleMapIO {
 	 * Note: Introducing limited global state through a singleton can be used to
 	 * set up default settings for a SimpleWorld.
 	 * 
-	 * Objects with an id of -1 will not be saved.
+	 * Objects with an key of -1 will not be saved.
 	 * 
 	 * 
 	 * The format of the saved file will be:
@@ -142,7 +142,7 @@ public class SimpleMapIO {
 	 * 
 	 * # count = |map_objects| <br>
 	 * for (s in map_objects) do <br>
-	 * &nbsp;&nbsp;&nbsp;&nbsp;&lt; int: s.id &gt;<br>
+	 * &nbsp;&nbsp;&nbsp;&nbsp;&lt; int: s.key &gt;<br>
 	 * &nbsp;&nbsp;&nbsp;&nbsp;&lt; int: s.coor_x &gt;<br>
 	 * &nbsp;&nbsp;&nbsp;&nbsp;&lt; int: s.coor_y &gt;<br>
 	 * &nbsp;&nbsp;&nbsp;&nbsp;&lt; utf_string: s.description &gt; <br>
@@ -152,6 +152,7 @@ public class SimpleMapIO {
 	 *            The map to be saved.
 	 * @return True if the map was saved successfully.
 	 * @see SimpleObject
+	 * @see SimpleWorldFactory#getKey(SimpleObject)
 	 * @see SimpleMap
 	 */
 	public boolean writeMap(SimpleMap m) {
@@ -159,7 +160,7 @@ public class SimpleMapIO {
 			if (canPrint) {
 				int count = 0;
 				for (SimpleObject s = m.getDrawBegin(); s != null; s = s.drawNext) {
-					if(s.id()!=-1){
+					if(swf.getKey(s)!=-1){
 						count++;
 					}
 				}
@@ -171,8 +172,8 @@ public class SimpleMapIO {
 				dO.writeInt(m.cellHeight);
 
 				for (SimpleObject s = m.getDrawBegin(); s != null; s = s.drawNext) {
-					if(s.id()!=-1){
-						dO.writeInt(s.id());
+					if(swf.getKey(s)!=-1){
+						dO.writeInt(swf.getKey(s));
 						dO.writeInt(s.coor_x);
 						dO.writeInt(s.coor_y);
 						dO.writeUTF(s.getDescription());

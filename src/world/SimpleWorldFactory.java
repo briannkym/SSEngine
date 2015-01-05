@@ -24,22 +24,23 @@ package world;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import sprite.Img;
 
 /**
- * Holds SimpleObjects that can be added to a map by passing in their id
- * (returned by the getID method).
+ * Holds SimpleObjects that can be added to a map by generated keys.
  * 
  * @author Brian Nakayama
  * @see SimpleObject
  */
 public class SimpleWorldFactory {
 
-	// Hold each object along with an id key representing the object.
+	// Hold each object along with a key.
 	List<SimpleObject> objects = new ArrayList<SimpleObject>();
+	Map<Class<?>, Integer> object_map = new HashMap<Class<?>, Integer>();
 
 	public SimpleWorldFactory() {
 
@@ -55,31 +56,48 @@ public class SimpleWorldFactory {
 	 */
 	public SimpleWorldFactory(String s) {
 		String[] classes = s.split(";");
-		for (String c : classes) {
+		for (int i = 0; i < classes.length; i++) {
 			try {
-				objects.add((SimpleObject) Class.forName(c).newInstance());
+				Class<?> Simp = Class.forName(classes[i]);
+				objects.add((SimpleObject)Simp.newInstance());
+				object_map.put(Simp, i);
 			} catch (Exception e) {
-				System.out.println("Could not retrieve class: " + c);
+				System.out.println("Could not retrieve class: " + classes[i]);
 				e.printStackTrace();
 			}
 		}
 	}
 
 	/**
-	 * Registers a SimpleObject using the integer returned by getID. Duplicate
-	 * ID's are not allowed. To ensure that all ID's are unique see
-	 * {@link SimpleObject#generateID()}
+	 * Registers a SimpleObject with a key.
 	 * 
 	 * @param o
 	 *            The SimpleObject to add.
 	 * @see SimpleObject
 	 */
 	public void register(SimpleObject o) {
-		if (!objects.contains(o)) {
+		if (!object_map.containsKey(o.getClass())) {
 			objects.add(o);
+			object_map.put(o.getClass(), objects.size() - 1);
 		}
 	}
 
+	/**
+	 * Registers all SimpleObjects in a list in order, replacing any previous
+	 * objects registered.
+	 * @param o A List of SimpleObjects in order from key 0 to n.
+	 */
+	public void registerReplace(List<SimpleObject> o) {
+		if (!objects.contains(o)) {
+			objects = o;
+			object_map = new HashMap<Class<?>, Integer>();
+			
+			for(int i = 0; i < objects.size(); i++){
+				object_map.put(objects.get(i).getClass(), i);
+			}
+		}
+	}
+	
 	/**
 	 * Get the image used by the object corresponding to the key.
 	 * 
@@ -116,6 +134,19 @@ public class SimpleWorldFactory {
 	 */
 	public List<SimpleObject> getList() {
 		return objects;
+	}
+	
+	/**
+	 * Gets the current key being used for the class of a SimpleObject stored in the
+	 * SimpleWorldFactory. 
+	 * @param o The SimpleObject to search for in the factory.
+	 * @return The internal key of the object o. Returns -1 if o is not stored.
+	 */
+	public int getKey(SimpleObject o){
+		if(object_map.containsKey(o.getClass())){
+			return object_map.get(o.getClass());
+		}
+		return -1;
 	}
 
 	/**

@@ -23,13 +23,6 @@ public class testMain {
 			}
 		}
 		
-		SimpleWorldFactory swf = new SimpleWorldFactory();
-		swf.register(new testColor());
-		swf.register(new testObject());
-		System.out.println(swf.toString());
-		swf = new SimpleWorldFactory(swf.toString());
-		System.out.println(swf.toString());
-		
 		//Note the new code below:
 		DesktopCanvas dc = new DesktopCanvas(800, 600, "Test");
 		DesktopControl dv = DesktopControl.getInstance();
