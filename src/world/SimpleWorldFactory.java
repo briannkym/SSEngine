@@ -22,9 +22,10 @@ THE SOFTWARE.
  */
 package world;
 
+import java.io.File;
+import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -57,15 +58,39 @@ public class SimpleWorldFactory {
 	public SimpleWorldFactory(String s) {
 		String[] classes = s.split(";");
 		for (int i = 0; i < classes.length; i++) {
-			try {
-				Class<?> Simp = Class.forName(classes[i]);
-				objects.add((SimpleObject)Simp.newInstance());
-				object_map.put(Simp, i);
-			} catch (Exception e) {
-				System.out.println("Could not retrieve class: " + classes[i]);
-				e.printStackTrace();
-			}
+			register(classes[i]);
 		}
+	}
+
+	/**
+	 * Loads all of the compiled SimpleObject *.class files in a package with
+	 * the directory URL. This method will not load any inner classes.
+	 * 
+	 * @param directory
+	 *            the URL of the package
+	 * @return True if and only if all of the classes were registered as
+	 *         SimpleObjects.
+	 */
+	public boolean loadPackage(String directory) {
+		File dir = new File(directory);
+		boolean registered = true;
+		if (dir.isDirectory()) {
+			File[] classes = dir.listFiles(new FilenameFilter() {
+				public boolean accept(File directory, String fileName) {
+					return fileName.endsWith(".class");
+				}
+			});
+			for (File f : classes) {
+				String path = f.getParentFile().getName() + "." + f.getName();
+				if (!path.contains("$")) {
+					path = path.substring(0, path.length() - 6);
+					registered &= register(path);
+				}
+			}
+		} else {
+			return false;
+		}
+		return registered;
 	}
 
 	/**
@@ -75,29 +100,54 @@ public class SimpleWorldFactory {
 	 *            The SimpleObject to add.
 	 * @see SimpleObject
 	 */
-	public void register(SimpleObject o) {
+	public boolean register(SimpleObject o) {
 		if (!object_map.containsKey(o.getClass())) {
 			objects.add(o);
 			object_map.put(o.getClass(), objects.size() - 1);
+			return true;
 		}
+		return false;
+	}
+
+	/**
+	 * Registers a SimpleObject with a key from a string holding the class name.
+	 * 
+	 * @param o
+	 *            the class name to be registered.
+	 * @return True if and only if the object was successfully registered.
+	 */
+	public boolean register(String o) {
+		boolean registered = true;
+		try {
+			Class<?> Simp = Class.forName(o);
+			objects.add((SimpleObject) Simp.newInstance());
+			object_map.put(Simp, objects.size() - 1);
+		} catch (Exception e) {
+			System.out.println("Could not retrieve class: " + o);
+			registered = false;
+			e.printStackTrace();
+		}
+		return registered;
 	}
 
 	/**
 	 * Registers all SimpleObjects in a list in order, replacing any previous
 	 * objects registered.
-	 * @param o A List of SimpleObjects in order from key 0 to n.
+	 * 
+	 * @param o
+	 *            A List of SimpleObjects in order from key 0 to n.
 	 */
 	public void registerReplace(List<SimpleObject> o) {
 		if (!objects.contains(o)) {
 			objects = o;
 			object_map = new HashMap<Class<?>, Integer>();
-			
-			for(int i = 0; i < objects.size(); i++){
+
+			for (int i = 0; i < objects.size(); i++) {
 				object_map.put(objects.get(i).getClass(), i);
 			}
 		}
 	}
-	
+
 	/**
 	 * Get the image used by the object corresponding to the key.
 	 * 
@@ -135,15 +185,17 @@ public class SimpleWorldFactory {
 	public List<SimpleObject> getList() {
 		return objects;
 	}
-	
+
 	/**
-	 * Gets the current key being used for the class of a SimpleObject stored in the
-	 * SimpleWorldFactory. 
-	 * @param o The SimpleObject to search for in the factory.
+	 * Gets the current key being used for the class of a SimpleObject stored in
+	 * the SimpleWorldFactory.
+	 * 
+	 * @param o
+	 *            The SimpleObject to search for in the factory.
 	 * @return The internal key of the object o. Returns -1 if o is not stored.
 	 */
-	public int getKey(SimpleObject o){
-		if(object_map.containsKey(o.getClass())){
+	public int getKey(SimpleObject o) {
+		if (object_map.containsKey(o.getClass())) {
 			return object_map.get(o.getClass());
 		}
 		return -1;

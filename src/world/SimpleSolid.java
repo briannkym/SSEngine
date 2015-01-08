@@ -305,8 +305,12 @@ public abstract class SimpleSolid extends SimpleObject {
 						dy2 = (y - coor_y > 0) ? dy1 - m.cellHeight : dy1
 								+ m.cellHeight;
 					}
-
-					return move(dx2, dy2, true, 0);
+					
+					if(dx2 == 0 && dy2== 0){
+						return false;
+					} else {
+						return move(dx2, dy2, true, 0);
+					}
 				}
 
 			}
