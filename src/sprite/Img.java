@@ -39,10 +39,11 @@ public abstract class Img
 	protected ImgListener iL = NullListener.getInstance();
 	/**
 	 * Returns the current slide of the image.
-	 * @param x The x position of the upper left corner
-	 * @param y The y position of the upper left corner
+	 * @param x The x position of the upper left corner.
+	 * @param y The y position of the upper left corner.
+	 * @param i The canvas to be drawn on.
 	 */
-    public abstract void drawSlide(int x, int y);
+    public abstract void drawSlide(int x, int y, ImgCanvas i);
 	
     /**
      * Return the width of the image
@@ -75,16 +76,6 @@ public abstract class Img
     public <T extends ImgCommand> void accept(T iC){
     	iC.accept(this);
     }
-
-    //TODO work with this with Chris.
-    //Gets the pixel at x, y
-    public abstract int[] getPixel(int x, int y);
-    
-    //Sets the pixel at x, y
-    public abstract void setPixel(int x, int y, int[] val);
-    
-    //Checks for transparency
-    public abstract boolean checkForCol(int[] val);
     
     /**
      * Creates a copy of the image rotated by the specified number of degrees.

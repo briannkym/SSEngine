@@ -31,6 +31,8 @@ import javax.sound.sampled.Clip;
 /**
  * Plays the sound files created by SoundUpload.
  * 
+ * TODO: Make sounds play on their own dedicated thread.
+ * 
  * @author Megan Knez
  * @author Brian Nakayama
  * 
@@ -146,5 +148,7 @@ public class TrackPlayer {
 		c.loop(count);
 		c.setFramePosition(0);
 		c.start();
+
 	}
+
 }

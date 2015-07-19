@@ -32,7 +32,7 @@ import java.util.Map;
 import sprite.Img;
 
 /**
- * Holds SimpleObjects that can be added to a map by generated keys.
+ * Holds SimpleObjects that can be added to a map by generated keys. 
  * 
  * @author Brian Nakayama
  * @see SimpleObject
@@ -68,12 +68,11 @@ public class SimpleWorldFactory {
 	 * 
 	 * @param directory
 	 *            the URL of the package
-	 * @return True if and only if all of the classes were registered as
+	 * @return True if and only if all of the SimpleObject classes were registered as
 	 *         SimpleObjects.
 	 */
 	public boolean loadPackage(String directory) {
 		File dir = new File(directory);
-		boolean registered = true;
 		if (dir.isDirectory()) {
 			File[] classes = dir.listFiles(new FilenameFilter() {
 				public boolean accept(File directory, String fileName) {
@@ -83,15 +82,18 @@ public class SimpleWorldFactory {
 			for (File f : classes) {
 				String path = f.getParentFile().getName() + "." + f.getName();
 				if (!path.contains("$")) {
+					//Get rid of .class
 					path = path.substring(0, path.length() - 6);
-					registered &= register(path);
+					register(path);
 				}
 			}
 		} else {
 			return false;
 		}
-		return registered;
+		return true;
 	}
+	
+	
 
 	/**
 	 * Registers a SimpleObject with a key.
@@ -123,9 +125,8 @@ public class SimpleWorldFactory {
 			objects.add((SimpleObject) Simp.newInstance());
 			object_map.put(Simp, objects.size() - 1);
 		} catch (Exception e) {
-			System.out.println("Could not retrieve class: " + o);
+			System.out.println("Could not retrieve file: " + o);
 			registered = false;
-			e.printStackTrace();
 		}
 		return registered;
 	}
@@ -186,6 +187,15 @@ public class SimpleWorldFactory {
 		return objects;
 	}
 
+
+	/**
+	 * Get the number of registered objects.
+	 * @return
+	 */
+	public int size(){
+		return objects.size();
+	}
+	
 	/**
 	 * Gets the current key being used for the class of a SimpleObject stored in
 	 * the SimpleWorldFactory.

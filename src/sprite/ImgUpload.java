@@ -24,23 +24,33 @@ package sprite;
 
 import java.io.File;
 
+/**
+ * The interface for all possible image uploading classes (for different
+ * devices).
+ * 
+ * @author Brian Nakayama
+ * 
+ */
 public interface ImgUpload {
 
 	/**
 	 * Get an image file
 	 * 
-	 * @param fileName The file name, not including any directories or the full path.
+	 * @param fileName
+	 *            The file name, not including any directories or the full path.
 	 * @return The image if it exists.
 	 */
 	public Img getImg(String fileName);
-	
+
 	/**
-	 * Get a rotated image file. This is the recommended way to rotate an image, as it
-	 * ensures that only one copy of the rotated image is created. Use this method instead of
-	 * {@link Img#getRotatedInstance(int)}.
+	 * Get a rotated image file. This is the recommended way to rotate an image,
+	 * as it ensures that only one copy of the rotated image is created. Use
+	 * this method instead of {@link Img#getRotatedInstance(int)}.
 	 * 
-	 * @param fileName The file name, not including any directories or the full path.
-	 * @param degree The degree [0-360]
+	 * @param fileName
+	 *            The file name, not including any directories or the full path.
+	 * @param degree
+	 *            The degree [0-360]
 	 * @return The image if it exists.
 	 */
 	public Img getRotatedImg(String fileName, int degree);

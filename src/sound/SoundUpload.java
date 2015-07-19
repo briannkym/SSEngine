@@ -26,6 +26,7 @@ package sound;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
+import java.nio.file.FileSystemNotFoundException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -36,6 +37,7 @@ import javax.sound.midi.Sequence;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
+import javax.sound.sampled.DataLine;
 
 /**
  * Loads all sound files for a directory.
@@ -123,13 +125,15 @@ public class SoundUpload {
 					try {
 						AudioInputStream as = AudioSystem
 								.getAudioInputStream(sounds[i]);
-						Clip c = AudioSystem.getClip();
+						DataLine.Info info = new DataLine.Info(Clip.class, as.getFormat());
+						Clip c = (Clip) AudioSystem.getLine(info);
 						c.open(as);
 						bS = new WAV(c);
 						as.close();
 					} catch (Exception e) {
 						System.out.println("Error loading wav:"
 								+ sounds[i].getName());
+						e.printStackTrace();
 
 					}
 				}
@@ -139,6 +143,8 @@ public class SoundUpload {
 				}
 			}
 
+		} else {
+			throw new FileSystemNotFoundException("The directory requested does not exist!");
 		}
 	}
 

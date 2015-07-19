@@ -28,11 +28,11 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
-import javax.swing.JOptionPane;
 
 /**
  * Loads objects using SimpleWorldFactory.
@@ -58,6 +58,27 @@ public class SimpleMapIO {
 	public SimpleMapIO(String path, SimpleWorldFactory swf) {
 		this.f = new File(path);
 		this.swf = swf;
+	}
+	
+	public SimpleMapIO(File f, SimpleWorldFactory swf) {
+		this.f = f;
+		this.swf = swf;
+	}
+	
+	public static SimpleMap loadSimpleMap(File f, SimpleWorldFactory swf){
+		SimpleMapIO s = new SimpleMapIO(f, swf);
+		s.openMap(true);
+		SimpleMap map = s.readMap();
+		s.closeMap();
+		return map;
+	}
+	
+	public static boolean saveSimpleMap(File f, SimpleWorldFactory swf, SimpleMap map){
+		SimpleMapIO s = new SimpleMapIO(f, swf);
+		s.openMap(false);
+		boolean saved = s.writeMap(map);
+		s.closeMap();
+		return saved;
 	}
 
 	/**
@@ -98,16 +119,18 @@ public class SimpleMapIO {
 			if (read) {
 				FileInputStream fis = new FileInputStream(f);
 				BufferedInputStream bis = new BufferedInputStream(fis);
-				dI = new DataInputStream(bis);
+				GZIPInputStream zis = new GZIPInputStream(bis);
+				dI = new DataInputStream(zis);
 				canRead = true;
 			} else {
 				FileOutputStream fos = new FileOutputStream(f, false);
 				BufferedOutputStream bos = new BufferedOutputStream(fos);
-				dO = new DataOutputStream(bos);
+				GZIPOutputStream zos = new GZIPOutputStream(bos);
+				dO = new DataOutputStream(zos);
 				canPrint = true;
 			}
 
-		} catch (FileNotFoundException e) {
+		} catch (IOException e) {
 			e.printStackTrace();
 			return false;
 		}
@@ -122,12 +145,10 @@ public class SimpleMapIO {
 	 * its getDescription() method which the user can override. This method is
 	 * not optimized for efficiency, and it does not save any global state
 	 * associated with the SimpleWorld such as which SimpleWorldObject should be
-	 * used or which object SimpleWorld should follow with the camera. The user
+	 * used, the background, or which object SimpleWorld should follow with the camera. The user
 	 * should implement their own methods for saving game state. This method is
 	 * best used to load the initial state of the game.
 	 * 
-	 * Note: Introducing limited global state through a singleton can be used to
-	 * set up default settings for a SimpleWorld.
 	 * 
 	 * Objects with an key of -1 will not be saved.
 	 * 
@@ -142,7 +163,7 @@ public class SimpleMapIO {
 	 * 
 	 * # count = |map_objects| <br>
 	 * for (s in map_objects) do <br>
-	 * &nbsp;&nbsp;&nbsp;&nbsp;&lt; int: s.key &gt;<br>
+	 * &nbsp;&nbsp;&nbsp;&nbsp;&lt; int: key &gt;<br>
 	 * &nbsp;&nbsp;&nbsp;&nbsp;&lt; int: s.coor_x &gt;<br>
 	 * &nbsp;&nbsp;&nbsp;&nbsp;&lt; int: s.coor_y &gt;<br>
 	 * &nbsp;&nbsp;&nbsp;&nbsp;&lt; utf_string: s.description &gt; <br>
@@ -211,7 +232,7 @@ public class SimpleMapIO {
 				return m;
 			}
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, "Error: Couldn't read world.");
+			System.out.println("Error: Couldn't read world.");
 			e.printStackTrace();
 		}
 

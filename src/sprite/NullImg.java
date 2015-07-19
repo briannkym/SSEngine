@@ -48,32 +48,18 @@ public class NullImg extends Img{
     }
     
     @Override
-    public void drawSlide(int x, int y)
+    public void drawSlide(int x, int y, ImgCanvas i)
     {
     }
 
 	@Override
 	public int getWidth() {
-		return 0;
+		throw new UnsupportedOperationException("Null image doesn't have a width.");
 	}
 
 	@Override
 	public int getHeight() {
-		return 0;
-	}
-
-	@Override
-	public int[] getPixel(int x, int y) {
-		return null;
-	}
-
-	@Override
-	public void setPixel(int x, int y, int[] val) {
-	}
-
-	@Override
-	public boolean checkForCol(int[] val) {
-		return false;
+		throw new UnsupportedOperationException("Null image doesn't have a height.");
 	}
 
 	@Override

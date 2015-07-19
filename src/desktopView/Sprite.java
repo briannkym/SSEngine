@@ -24,20 +24,17 @@ package desktopView;
 
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
-
-import control.DesktopControl;
-
 import sprite.Img;
+import sprite.ImgCanvas;
 
 /**
  * The basic image. Holds a buffered image.
  * 
  * @author Brian Nakayama
  */
-public class Sprite extends Img {
+public class Sprite extends Img implements Previewable{
 
 	BufferedImage bI;
-	private DesktopControl dc = DesktopControl.getInstance();
 
 	/**
 	 * Creates a sprite with the specified buffered image.
@@ -48,13 +45,22 @@ public class Sprite extends Img {
 	public Sprite(BufferedImage bI) {
 		this.bI = bI;
 	}
-
+	
 	/**
-	 * Draws the colored image using {@link DesktopCanvas}
+	 * Return the internal image stored for desktop applications.
+	 * @return a bufferedImage
 	 */
 	@Override
-	public void drawSlide(int x, int y) {
-		dc.getCanvas().drawImage(bI, x, y);
+	public BufferedImage getBufferedImage(){
+		return bI;
+	}
+
+	/**
+	 * Draws the colored image using {@link IDesktopCanvas}
+	 */
+	@Override
+	public void drawSlide(int x, int y, ImgCanvas i) {
+		((IDesktopCanvas)i).drawImage(bI, x, y);
 		iL.slideEnd();
 	}
 
@@ -66,24 +72,6 @@ public class Sprite extends Img {
 	@Override
 	public int getHeight() {
 		return bI.getHeight();
-	}
-
-	@Override
-	public int[] getPixel(int x, int y) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void setPixel(int x, int y, int[] val) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public boolean checkForCol(int[] val) {
-		// TODO Auto-generated method stub
-		return false;
 	}
 
 	@Override

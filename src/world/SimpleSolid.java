@@ -60,13 +60,13 @@ public abstract class SimpleSolid extends SimpleObject {
 	/**
 	 * Create a SimpleSolid with an image.
 	 * 
-	 * Note that this is not the good way to create a solid with an image,
-	 * though it is the most convenient. Images should be loaded statically. See
+	 * Note that this is not always the best way to create a solid with an image,
+	 * though it can be convenient. Images should be loaded statically. See
 	 * the same constructor for SimpleSolid for more notes.
 	 * 
 	 * @param sprite
 	 *            The path to the image.
-	 * @see SimpleObject#SimpleObject(String)
+	 * @see SimpleObject#SimpleObject(Img)
 	 */
 	public SimpleSolid(Img sprite) {
 		super(sprite, NO_COLLIDES);
@@ -83,7 +83,7 @@ public abstract class SimpleSolid extends SimpleObject {
 	 *            The path to the image.
 	 * @param NO_UPDATES
 	 *            True if you need the object to move.
-	 * @see SimpleObject#SimpleObject(String)
+	 * @see SimpleObject#SimpleObject(Img, int)
 	 */
 	public SimpleSolid(Img sprite, boolean NO_UPDATES) {
 		super(sprite, NO_UPDATES_NO_COLLIDES);
@@ -181,11 +181,15 @@ public abstract class SimpleSolid extends SimpleObject {
 			x += coor_x;
 			y += coor_y;
 		}
-
+		
+		//Use to se if a valid movement happened.
+		boolean movement = false;
 		// Check if the object is trying to leave the map.
 		if (x > 0) {
 			if (x > m.mapWmax) {
 				x = m.mapWmax;
+			} else {
+				movement = true;
 			}
 		} else {
 			x = 0;
@@ -194,6 +198,8 @@ public abstract class SimpleSolid extends SimpleObject {
 		if (y > 0) {
 			if (y > m.mapHmax) {
 				y = m.mapHmax;
+			} else {
+				movement = true;
 			}
 		} else {
 			y = 0;
@@ -233,7 +239,7 @@ public abstract class SimpleSolid extends SimpleObject {
 				drawNext = m.mapArray[new_y];
 				drawPrevious.drawNext = this;
 				drawNext.drawPrevious = this;
-				return true;
+				return movement;
 			}
 		} else {
 			switch (fuzz) {
@@ -339,10 +345,7 @@ public abstract class SimpleSolid extends SimpleObject {
 			final int x_n = coor_x / m.cellWidth;
 			final int y_n = coor_y / m.cellHeight;
 			m.map[y_n][x_n] = null;
-			m = null;
-			drawNext.drawPrevious = drawPrevious;
-			drawPrevious.drawNext = drawNext;
-			return true;
+			return super.removeSelf();
 		}
 		return false;
 	}

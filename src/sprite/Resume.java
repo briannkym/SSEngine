@@ -23,14 +23,24 @@ THE SOFTWARE.
 
 package sprite;
 
+/**
+ * The resume command object for resuming an animation.
+ * @author Brian Nakayama
+ *
+ */
 public class Resume implements ImgCommand {
 
 	private static Resume c = new Resume();
+	
 	
 	private Resume(){
 		
 	}
 	
+	/**
+	 * Get the resume command object for resuming animations.
+	 * @return the resume object.
+	 */
 	public static Resume getInstance(){
 		return c;
 	}

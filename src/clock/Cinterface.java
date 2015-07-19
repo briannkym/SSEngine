@@ -33,10 +33,8 @@ package clock;
  */
 public interface Cinterface {
 	/**
-	 * Override this in an object that you want to receive updates from the
+	 * Override this in an object to receive periodic update requests from the
 	 * projector.
-	 * 
-	 * @param ISlide
 	 */
 	public void update();
 }

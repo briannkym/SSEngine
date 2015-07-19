@@ -22,11 +22,12 @@ THE SOFTWARE.
  */
 package world;
 
-import control.DeviceControl;
 import clock.Cinterface;
 import clock.Clock;
 
 import sprite.Img;
+import sprite.ImgCanvas;
+import sprite.NullImg;
 
 /**
  * Holds the camera and interfaces with the projector which controls the frame
@@ -39,12 +40,12 @@ import sprite.Img;
  */
 public class SimpleWorld implements Cinterface {
 
-	private Img background;
+	private Img background = NullImg.getInstance();
 	private Clock clock;
 	private final int[] camera = { 0, 0 };
 	private SimpleObject cameraStalk = null;
 
-	public final DeviceControl dv;
+	public final ImgCanvas dc;
 	private SimpleMap m;
 	private SimpleWorldObject swo = NullSimpleWorldObject.getInstance();
 	private boolean update = true;
@@ -54,15 +55,13 @@ public class SimpleWorld implements Cinterface {
 	 * 
 	 * @param m
 	 *            The map to be rendered and updated. Switch the map to switch
-	 *            "environments" or "rooms".
-	 * @param ImgCanvas 
-	 * 			The canvas to be drawn to.
-	 * @param title
-	 *            The title of the application.
+	 *            "environments" or "rooms".\
+	 * @param dc
+	 *            The canvas that this world is drawn on.
 	 */
-	public SimpleWorld(SimpleMap m, DeviceControl dv) {
+	public SimpleWorld(SimpleMap m, ImgCanvas dc) {
 		this.m = m;
-		this.dv = dv;
+		this.dc = dc;
 		this.clock = new Clock(20.0f, this);
 	}
 
@@ -75,15 +74,14 @@ public class SimpleWorld implements Cinterface {
 	 *            screen will be the size defined in the constructor in pixels.
 	 */
 	public void start(boolean fullscreen) {
-		dv.getCanvas().register();
 		if (fullscreen) {
-			dv.getCanvas().fullScreen();
+			dc.fullScreen();
 		} else {
-			dv.getCanvas().windowScreen();
+			dc.windowScreen();
 		}
 		clock.init();
 	}
-	
+
 	/**
 	 * Set the current map held and rendered by the world.
 	 * 
@@ -112,7 +110,11 @@ public class SimpleWorld implements Cinterface {
 	 * @see SimpleWorldObject
 	 */
 	public void setSimpleWorldObject(SimpleWorldObject swo) {
-		this.swo = swo;
+		if (swo == null) {
+			this.swo = NullSimpleWorldObject.getInstance();
+		} else {
+			this.swo = swo;
+		}
 	}
 
 	/**
@@ -146,7 +148,11 @@ public class SimpleWorld implements Cinterface {
 	 *            The image to be tiled.
 	 */
 	public void setBGImage(Img i) {
-		this.background = i;
+		if (background == null) {
+			this.background = NullImg.getInstance();
+		} else {
+			this.background = i;
+		}
 	}
 
 	/**
@@ -188,20 +194,18 @@ public class SimpleWorld implements Cinterface {
 	 * 
 	 * This method updates the camera, all the objects, then paints them all.
 	 * 
-	 * @see clock.Cinterface#iUpdate(java.awt.image.BufferedImage)
+	 * @see clock.Cinterface#update()
 	 */
 	@Override
 	public void update() {
 
 		// Update camera coordinates based off of the width and height.
 		if (cameraStalk != null) {
-			int width = dv.getCanvas().getWidth();
-			int height = dv.getCanvas().getHeight();
-			
-			camera[0] = cameraStalk.coor_x - (width - m.cellWidth)
-					/ 2;
-			camera[1] = cameraStalk.coor_y
-					- (height - m.cellHeight) / 2;
+			int width = dc.getWidth();
+			int height = dc.getHeight();
+
+			camera[0] = cameraStalk.coor_x - (width - m.cellWidth) / 2;
+			camera[1] = cameraStalk.coor_y - (height - m.cellHeight) / 2;
 			if (camera[0] < 0) {
 				camera[0] = 0;
 			} else {
@@ -209,25 +213,27 @@ public class SimpleWorld implements Cinterface {
 				if (camera[0] > (x = m.mapWmax - width + m.cellWidth)) {
 					camera[0] = x;
 				}
-			}			
+			}
 			if (camera[1] < 0) {
 				camera[1] = 0;
 			} else {
 				int y;
-				if (camera[1] > (y = m.mapHmax - height	+ m.cellHeight)) {
+				if (camera[1] > (y = m.mapHmax - height + m.cellHeight)) {
 					camera[1] = y;
 				}
 			}
 		}
 
-		//Draw in the background.
-		if (background != null) {
+		// Draw in the background.
+		if (background != NullImg.getInstance()) {
 			int bg_width = background.getWidth();
 			int bg_height = background.getHeight();
-			for (int x = camera[0] % bg_width - bg_width; x < dv.getCanvas().getWidth(); x += bg_width) {
-				for (int y = camera[1] % bg_height - bg_height; y < dv.getCanvas()
+			// The offset of the image must decrease as the camera's position
+			// increases.
+			for (int x = (-camera[0] % -bg_width); x < dc.getWidth(); x += bg_width) {
+				for (int y = (-camera[1] % -bg_height); y < dc
 						.getHeight(); y += bg_height) {
-					background.drawSlide(x, y);
+					background.drawSlide(x, y, dc);
 				}
 			}
 		}
@@ -243,21 +249,21 @@ public class SimpleWorld implements Cinterface {
 		for (SimpleObject s = m.getDrawBegin(); s != null; s = s.drawNext) {
 			s.updateNext = s.drawNext;
 			s.i.drawSlide(s.coor_x + s.off[0] - camera[0], s.coor_y + s.off[1]
-					- camera[1]);
+					- camera[1], dc);
 		}
 
 		// Update the world object last.
 		swo.update();
-		dv.getCanvas().paint();
+		dc.paint();
 	}
-	
+
 	/**
 	 * Disables updating of objects in world.
 	 */
 	public void disableUpdate() {
 		update = false;
 	}
-	
+
 	/**
 	 * Enables updating of objects in world.
 	 */

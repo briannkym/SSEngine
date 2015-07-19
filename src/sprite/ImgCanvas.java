@@ -22,7 +22,6 @@ THE SOFTWARE.
  */
 package sprite;
 
-import java.awt.Container;
 
 /**
 *
@@ -38,12 +37,39 @@ import java.awt.Container;
 * @version 1.2 Now all code is abstracted as MVC.
 */
 public interface ImgCanvas {
+	
+	/**
+	 * Get the width of the canvas.
+	 * @return
+	 */
 	public int getWidth();
+	/**
+	 * Get the height of the canvas.
+	 * @return
+	 */
 	public int getHeight();
+	/**
+	 * Paint the screen.
+	 */
 	public void paint();
+	/**
+	 * Initiate fullScreen mode.
+	 */
 	public void fullScreen();
+	/**
+	 * Initiate a windowScreen mode.
+	 */
 	public void windowScreen();
-	public void register();
+	/**
+	 * Rotate the screen
+	 * @param degrees The degrees the screen should be rotated by.
+	 */
 	public void setRotation(int degrees);
-	public Container getContentPane();
+
+	/**
+	 * Get an image uploader for a directory associated with this Canvas.
+	 * @param s The path to the directory.
+	 * @return An ImgUploader for that directory.
+	 */
+	public ImgUpload getImgUpload(String s);
 }

@@ -25,10 +25,9 @@ package desktopView;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 
-import control.DesktopControl;
-
 import sprite.Anm;
 import sprite.Img;
+import sprite.ImgCanvas;
 import sprite.NullListener;
 import sprite.ImgListener;
 
@@ -37,13 +36,12 @@ import sprite.ImgListener;
  * 
  * @author Brian Nakayama
  */
-public class Animation extends Anm {
+public class Animation extends Anm implements Previewable{
 
 	public boolean cycle = true;
 	BufferedImage[] bI;
 	private int i = 0;
 	private ImgListener iL = NullListener.getInstance();
-	private DesktopControl dc = DesktopControl.getInstance();
 
 	/**
 	 * Initializes the animation with an array of bufferedImages.
@@ -54,12 +52,22 @@ public class Animation extends Anm {
 	public Animation(BufferedImage[] bI) {
 		this.bI = bI;
 	}
+	
+	/**
+	 * Return a preview of this animation for desktop applications.
+	 * @return a bufferedImage
+	 */
+	@Override
+	public BufferedImage getBufferedImage(){
+		return bI[bI.length/2];
+	}
 
 	/**
 	 * Returns a new animation that uses the same array of images.
 	 * 
 	 * @return A new animation.
 	 */
+	@Override
 	public Animation getClone() {
 		return new Animation(bI);
 	}
@@ -68,7 +76,7 @@ public class Animation extends Anm {
 	 * Draws an image and increments the index of the array.
 	 */
 	@Override
-	public void drawSlide(int x, int y) {
+	public void drawSlide(int x, int y, ImgCanvas ic) {
 		BufferedImage rB = bI[i];
 
 		if (cycle) {
@@ -80,12 +88,13 @@ public class Animation extends Anm {
 			}
 		}
 
-		dc.getCanvas().drawImage(rB, x, y);
+		((IDesktopCanvas)ic).drawImage(rB, x, y);
 	}
 
 	/**
 	 * Set the index to be displayed.
 	 */
+	@Override
 	public void setSlide(int i) {
 		this.i = i;
 	}
@@ -117,24 +126,6 @@ public class Animation extends Anm {
 			nbI[j] = bI[i[j]];
 		}
 		return new Animation(nbI);
-	}
-
-	@Override
-	public int[] getPixel(int x, int y) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void setPixel(int x, int y, int[] val) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public boolean checkForCol(int[] val) {
-		// TODO Auto-generated method stub
-		return false;
 	}
 
 	@Override

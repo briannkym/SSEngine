@@ -23,10 +23,8 @@ THE SOFTWARE.
 package desktopView;
 
 import java.awt.image.BufferedImage;
-
-import control.DesktopControl;
-
 import sprite.Img;
+import sprite.ImgCanvas;
 import sprite.ImgListener;
 import sprite.NullListener;
 
@@ -35,10 +33,9 @@ import sprite.NullListener;
  * 
  * @author Brian Nakayama
  */
-public class ColorImg extends Img {
+public class ColorImg extends Img  implements Previewable{
 
 	private BufferedImage bI;
-    private DesktopControl dc = DesktopControl.getInstance();
     private ImgListener iL = NullListener.getInstance();
     
 	/**
@@ -62,11 +59,20 @@ public class ColorImg extends Img {
 	}
 
 	/**
+	 * Return the internal image stored for desktop applications.
+	 * @return a bufferedImage
+	 */
+	@Override
+	public BufferedImage getBufferedImage(){
+		return bI;
+	}
+	
+	/**
 	 * Draws the colored image using {@link DesktopCanvas}
 	 */
 	@Override
-	public void drawSlide(int x, int y) {
-		dc.getCanvas().drawImage(bI, x, y);
+	public void drawSlide(int x, int y, ImgCanvas i) {
+		((IDesktopCanvas)i).drawImage(bI, x, y);
 		iL.slideEnd();
 	}
 	
@@ -78,24 +84,6 @@ public class ColorImg extends Img {
 	@Override
 	public int getHeight() {
 		return bI.getHeight();
-	}
-
-	@Override
-	public int[] getPixel(int x, int y) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void setPixel(int x, int y, int[] val) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public boolean checkForCol(int[] val) {
-		// TODO Auto-generated method stub
-		return false;
 	}
 
 	@Override

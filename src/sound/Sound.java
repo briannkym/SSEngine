@@ -25,7 +25,8 @@ package sound;
 
 /**
  *
- * @author Brian
+ * The sound interface for playing Midi's or Wav's
+ * @author Brian Nakayama
  * @version 1.0
  * @see TrackPlayer
  */

@@ -7,10 +7,19 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
+import java.io.File;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+import sprite.ImgUpload;
+
+
+/**
+ * Experimental Canvas for future use. NOT USABLE YET.
+ * @author Mark Groeneveld
+ *
+ */
 public class EditorCanvas extends JFrame implements IDesktopCanvas{
 	
 	private static final long serialVersionUID = 1L;
@@ -83,12 +92,14 @@ public class EditorCanvas extends JFrame implements IDesktopCanvas{
 	}
 
 	@Override
-	public void register() {
-	}
-
-	@Override
 	public void drawImage(BufferedImage bi, int x, int y) {
 		buffer.drawImage(bi, x, y, null);
+	}
+	
+	@Override
+	public ImgUpload getImgUpload(String s) {
+		File f = new File(s);
+		return DesktopImgUpload.getInstance(f);
 	}
 
 	@Override

@@ -28,6 +28,7 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.FileSystemNotFoundException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -123,6 +124,9 @@ public class DesktopImgUpload implements ImgUpload{
 				}
 			}
 
+		}
+		else {
+			throw new FileSystemNotFoundException("The directory requested does not exist!");
 		}
 	}
 

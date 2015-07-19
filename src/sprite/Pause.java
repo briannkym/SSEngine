@@ -23,6 +23,11 @@ THE SOFTWARE.
 
 package sprite;
 
+/**
+ * The pause command object for pausing an image animation.
+ * @author Brian Nakayama
+ *
+ */
 public class Pause implements ImgCommand {
 
 	private static Pause c = new Pause();
@@ -31,6 +36,10 @@ public class Pause implements ImgCommand {
 
 	}
 
+	/**
+	 * Get a pause command object.
+	 * @return the pause object.
+	 */
 	public static Pause getInstance() {
 		return c;
 	}

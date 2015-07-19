@@ -34,8 +34,12 @@ import java.awt.GraphicsEnvironment;
 import java.awt.Toolkit;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
+import java.io.File;
+
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+
+import sprite.ImgUpload;
 
 /**
  * Holds all of the code intended for a desktop view ala Java 1.7. Should be
@@ -51,6 +55,9 @@ public class DesktopCanvas extends JFrame implements IDesktopCanvas {
 	public static final int TOP_SPACE = 40;
 	// The Dimensions of the Projection.
 	private int width, height, x, y;
+
+	// True for vitrual full screen mode.
+	private boolean virtual = false;
 	JPanel jp;
 	BufferedImage bi;
 	Graphics2D buffer;
@@ -58,16 +65,38 @@ public class DesktopCanvas extends JFrame implements IDesktopCanvas {
 	private int rotate = 0;
 
 	/**
-	 * This is one of the optional views for the game.
+	 * Basic Desktop view for the game. Full Screen mode will try to change the
+	 * screen's resolution by default.
 	 * 
 	 * @param width
+	 *            The width (in pixels) of the screen.
 	 * @param height
+	 *            The height (in pixels) of the screen.
 	 * @param title
+	 *            The title (for windowed mode).
 	 */
 	public DesktopCanvas(int width, int height, String title) {
 		super(title);
 		this.bi = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 		buffer = bi.createGraphics();
+	}
+
+	/**
+	 * Desktop View for the game. Modify the fullscreen mode from here.
+	 * 
+	 * @param width
+	 *            The width (in pixels) of the screen.
+	 * @param height
+	 *            The height (in pixels) of the screen.
+	 * @param title
+	 *            The title (for windowed mode).
+	 * @param virtual
+	 *            true to stretch to approximate the games pixels without
+	 *            changing the resolution.
+	 */
+	public DesktopCanvas(int width, int height, String title, boolean virtual) {
+		this(width, height, title);
+		this.virtual = virtual;
 	}
 
 	/**
@@ -90,17 +119,27 @@ public class DesktopCanvas extends JFrame implements IDesktopCanvas {
 		this.setResizable(false);
 		this.setVisible(true);
 	}
-	
+
+	/**
+	 * For implementation specific graphics options use this method to gain
+	 * direct access to the canvas for a desktop.
+	 * 
+	 * @return The bufferedImage drawn to the screen.
+	 */
+	public BufferedImage getCanvas() {
+		return bi;
+	}
+
 	@Override
-	public int getWidth(){
+	public int getWidth() {
 		return getContentPane().getWidth();
 	}
-	
+
 	@Override
-	public int getHeight(){
+	public int getHeight() {
 		return getContentPane().getHeight();
 	}
-	
+
 	/**
 	 * Using a command pattern, sets up a full screen.
 	 */
@@ -122,7 +161,7 @@ public class DesktopCanvas extends JFrame implements IDesktopCanvas {
 		GraphicsDevice gd = ge.getDefaultScreenDevice();
 		boolean fullScreen = gd.isFullScreenSupported();
 
-		if (fullScreen) {
+		if (fullScreen && !virtual) {
 			d = new Dimension(bi.getWidth(), bi.getHeight());
 
 			DisplayMode currentDisplay = gd.getDisplayMode();
@@ -176,6 +215,7 @@ public class DesktopCanvas extends JFrame implements IDesktopCanvas {
 			jp.setPreferredSize(d);
 			c.add(jp, BorderLayout.NORTH);
 			this.pack();
+			this.setLocation(0, 0);
 			this.setVisible(true);
 		}
 
@@ -195,9 +235,10 @@ public class DesktopCanvas extends JFrame implements IDesktopCanvas {
 		try {
 			g = jp.getGraphics();
 			if ((g != null) && (bi != null)) {
-				if(rotate != 0){
+				if (rotate != 0) {
 					AffineTransform at = new AffineTransform();
-					at.rotate(-(rotate * 2 * Math.PI)/360.0, bi.getWidth()/2, bi.getHeight()/2);
+					at.rotate(-(rotate * 2 * Math.PI) / 360.0,
+							bi.getWidth() / 2, bi.getHeight() / 2);
 					buffer.setTransform(at);
 				} else {
 					buffer.setTransform(new AffineTransform());
@@ -217,12 +258,14 @@ public class DesktopCanvas extends JFrame implements IDesktopCanvas {
 	}
 
 	@Override
-	public void register() {
+	public void drawImage(BufferedImage bi, int x, int y) {
+		buffer.drawImage(bi, x, y, null);
 	}
 
 	@Override
-	public void drawImage(BufferedImage bi, int x, int y) {
-		buffer.drawImage(bi, x, y, null);		
+	public ImgUpload getImgUpload(String s) {
+		File f = new File(s);
+		return DesktopImgUpload.getInstance(f);
 	}
 
 	@Override

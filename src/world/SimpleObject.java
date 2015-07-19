@@ -47,10 +47,10 @@ public abstract class SimpleObject {
 	SimpleObject updateNext = null;
 
 	// Optimization options for limited functionality.
-	public static final int NO_UPDATES_NO_COLLIDES = 0,
-			NO_COLLIDES = 2, NORMAL = 3;
-	
-	//Int for generating unique IDs for objects.
+	public static final int NO_UPDATES_NO_COLLIDES = 0, NO_COLLIDES = 2,
+			NORMAL = 3, REMOVED_NO_COLLIDES = 4, REMOVED = 5;
+
+	// Int for generating unique IDs for objects.
 	private static int ID = 0;
 
 	// By default use the null image.
@@ -66,19 +66,21 @@ public abstract class SimpleObject {
 	SimpleMap m;
 
 	// The offset for drawing the image.
-	protected final int[] off = { 0, 0 };
+	final int[] off = { 0, 0 };
 
 	final SimpleSolid[] collisions = new SimpleSolid[4];
-	
+
 	/**
-	 * Method for generating unique ID's. The ID's will be unique up to 2^32 objects.
+	 * Method for generating unique ID's. The ID's will be unique up to 2^32
+	 * objects.
+	 * 
 	 * @return a unique ID
 	 */
-	public static int generateID(){
-		ID ++;
+	public static int generateID() {
+		ID++;
 		return ID;
 	}
-	
+
 	/**
 	 * Override with behavior for collisions. SimpleObjects can only collide
 	 * with SimpleSolids, and will overlap when colliding. SimpleSolids can
@@ -100,13 +102,12 @@ public abstract class SimpleObject {
 	abstract public void update();
 
 	/**
-	 * Override with the id of the object. This method is necessary for
-	 * SimpleWorldFactory, but it is also useful for determining what to do upon
-	 * a collision.
+	 * Override with the id of the object. This method was necessary for
+	 * SimpleWorldFactory, but now it is only useful for determining what to do
+	 * upon a collision.
 	 * 
 	 * @return The id of the object.
 	 * 
-	 * @see SimpleWorldFactory
 	 */
 	abstract public int id();
 
@@ -346,6 +347,11 @@ public abstract class SimpleObject {
 			}
 		case NO_COLLIDES:
 			this.update();
+			break;
+		case REMOVED:
+			updates = NORMAL;
+		case REMOVED_NO_COLLIDES:
+			updates = NO_COLLIDES;
 		default:
 			// Do nothing on move.
 			break;
@@ -395,13 +401,22 @@ public abstract class SimpleObject {
 
 	/**
 	 * Attempt to remove the Object from any map it may be a part of.
+	 * 
 	 * @return True if the object belongs to a map and is removed.
 	 */
-	public boolean removeSelf(){
-		if(drawNext!=null && drawPrevious!=null){
+	public boolean removeSelf() {
+		if (drawNext != null && drawPrevious != null) {
 			m = null;
 			drawNext.drawPrevious = drawPrevious;
 			drawPrevious.drawNext = drawNext;
+			drawNext = null;
+			drawPrevious = null;
+			switch(updates){
+			case NORMAL:
+				updates = REMOVED;
+			case NO_COLLIDES:
+				updates = REMOVED_NO_COLLIDES;
+			}
 			return true;
 		}
 		return false;
@@ -475,9 +490,10 @@ public abstract class SimpleObject {
 	public SimpleSolid getSolid() {
 		return null;
 	}
-	
+
 	/**
 	 * Get the map that this object is currently a part of.
+	 * 
 	 * @return The current map
 	 */
 	public SimpleMap getMap() {
